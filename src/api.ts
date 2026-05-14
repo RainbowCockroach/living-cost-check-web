@@ -79,4 +79,19 @@ export const api = {
     request<Expense>('POST', '/expenses', data),
   deleteExpense: (id: number) =>
     request<void>('DELETE', `/expenses/${id}`),
+
+  // Headline total for a date range — sum of `amount` and count of expenses.
+  // The list endpoint's `total` is a row count, so we use this when the UI
+  // needs the actual sum across the full range (not just the loaded page).
+  totalExpenses: (params: { from?: string; to?: string }) => {
+    const q = new URLSearchParams();
+    if (params.from) q.set('from', params.from);
+    if (params.to) q.set('to', params.to);
+    return request<{
+      from: string | null;
+      to: string | null;
+      total: number;
+      count: number;
+    }>('GET', `/reports/total?${q.toString()}`);
+  },
 };

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
-import { clearApiKey, hasApiKey } from './auth';
+import { hasApiKey } from './auth';
+import { LanguageSwitcher, useT } from './i18n';
 import ApiKeyScreen from './screens/ApiKeyScreen';
 import NewExpenseScreen from './screens/NewExpenseScreen';
 import ExpensesScreen from './screens/ExpensesScreen';
@@ -14,6 +15,7 @@ export default function App() {
 
   const location = useLocation();
   const navigate = useNavigate();
+  const t = useT();
 
   // If the key disappears (e.g. 401 cleared it from api.ts), bounce to /key.
   useEffect(() => {
@@ -24,26 +26,15 @@ export default function App() {
     <div className="app" key={keyVersion}>
       <nav>
         <NavLink to="/new" className={({ isActive }) => (isActive ? 'active' : '')}>
-          New
+          {t('nav.new')}
         </NavLink>
         <NavLink to="/expenses" className={({ isActive }) => (isActive ? 'active' : '')}>
-          Expenses
+          {t('nav.expenses')}
         </NavLink>
-        <span className="spacer" />
+        <LanguageSwitcher />
         <NavLink to="/key" className={({ isActive }) => (isActive ? 'active' : '')}>
-          API key
+          {t('nav.apiKey')}
         </NavLink>
-        {authed && (
-          <button
-            onClick={() => {
-              clearApiKey();
-              bump();
-              navigate('/key');
-            }}
-          >
-            Sign out
-          </button>
-        )}
       </nav>
 
       <Routes>

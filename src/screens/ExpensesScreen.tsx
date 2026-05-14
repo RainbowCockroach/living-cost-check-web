@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { api, ApiError, type Expense } from '../api';
 import { readableTextColor } from '../colors';
+import { useI18n } from '../i18n';
 
 function ymd(d: Date): string {
   const y = d.getFullYear();
@@ -22,9 +23,13 @@ export default function ExpensesScreen() {
   const [to, setTo] = useState(initial.to);
   const [items, setItems] = useState<Expense[]>([]);
   const [total, setTotal] = useState(0);
+  // Sum across the full range from the server, independent of the list's
+  // pagination limit so the headline figure is correct even when truncated.
+  const [rangeSum, setRangeSum] = useState(0);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
+  const { t, locale } = useI18n();
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -34,15 +39,19 @@ export default function ExpensesScreen() {
       // filter is inclusive of both endpoints in local time.
       const fromIso = `${from}T00:00:00`;
       const toIso = `${to}T23:59:59`;
-      const res = await api.listExpenses({ from: fromIso, to: toIso, limit: 500 });
+      const [res, totals] = await Promise.all([
+        api.listExpenses({ from: fromIso, to: toIso, limit: 500 }),
+        api.totalExpenses({ from: fromIso, to: toIso }),
+      ]);
       setItems(res.items);
       setTotal(res.total);
+      setRangeSum(totals.total);
     } catch (e) {
-      setErr(e instanceof ApiError ? e.message : 'Failed to load.');
+      setErr(e instanceof ApiError ? e.message : t('expenses.loadFailed'));
     } finally {
       setLoading(false);
     }
-  }, [from, to]);
+  }, [from, to, t]);
 
   useEffect(() => {
     load();
@@ -51,41 +60,50 @@ export default function ExpensesScreen() {
   async function onDelete(id: number) {
     try {
       await api.deleteExpense(id);
+      const removed = items.find((x) => x.id === id);
       setItems((cur) => cur.filter((x) => x.id !== id));
-      setTotal((t) => Math.max(0, t - 1));
+      setTotal((n) => Math.max(0, n - 1));
+      if (removed) setRangeSum((s) => Math.max(0, s - removed.amount));
     } catch (e) {
-      setErr(e instanceof ApiError ? e.message : 'Delete failed.');
+      setErr(e instanceof ApiError ? e.message : t('expenses.deleteFailed'));
     }
   }
 
-  const sum = items.reduce((acc, x) => acc + x.amount, 0);
 
   return (
     <section>
-      <h2>Expenses</h2>
+      <h2>{t('expenses.title')}</h2>
       <div className="filter-row">
         <label style={{ margin: 0 }}>
-          <span className="lbl">From</span>
+          <span className="lbl">{t('expenses.from')}</span>
           <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
         </label>
         <label style={{ margin: 0 }}>
-          <span className="lbl">To</span>
+          <span className="lbl">{t('expenses.to')}</span>
           <input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
         </label>
         <button onClick={load} disabled={loading}>
-          {loading ? 'Loading…' : 'Refresh'}
+          {loading ? t('expenses.loading') : t('expenses.refresh')}
         </button>
         <span className="spacer" style={{ flex: 1 }} />
         <button
           className={editMode ? 'primary' : ''}
           onClick={() => setEditMode((v) => !v)}
         >
-          {editMode ? 'Done' : 'Edit'}
+          {editMode ? t('expenses.done') : t('expenses.edit')}
         </button>
       </div>
 
+      <div className="range-total" style={{ fontSize: '1.25rem', fontWeight: 600, margin: '0.25rem 0' }}>
+        {t('expenses.rangeTotal', { total: rangeSum.toLocaleString(locale) })}
+      </div>
+
       <div className="muted" style={{ marginBottom: '0.5rem' }}>
-        {items.length} of {total} • {sum.toLocaleString('vi-VN')} ₫
+        {t('expenses.summary', {
+          shown: items.length,
+          total,
+          sum: rangeSum.toLocaleString(locale),
+        })}
       </div>
 
       {err && <div className="error">{err}</div>}
@@ -95,7 +113,7 @@ export default function ExpensesScreen() {
           const bg = x.tag.color ?? '#ddd';
           return (
             <li key={x.id}>
-              <span className="amount">{x.amount.toLocaleString('vi-VN')} ₫</span>
+              <span className="amount">{x.amount.toLocaleString(locale)} ₫</span>
               <span
                 className="tag-chip"
                 style={{ background: bg, color: readableTextColor(bg) }}
@@ -104,18 +122,18 @@ export default function ExpensesScreen() {
               </span>
               <span className="note">{x.note ?? ''}</span>
               <span className="when">
-                {new Date(x.occurredAt).toLocaleDateString()}
+                {new Date(x.occurredAt).toLocaleDateString(locale)}
               </span>
               {editMode && (
                 <button className="danger" onClick={() => onDelete(x.id)}>
-                  Delete
+                  {t('expenses.delete')}
                 </button>
               )}
             </li>
           );
         })}
         {!loading && items.length === 0 && (
-          <li className="muted">No expenses in this range.</li>
+          <li className="muted">{t('expenses.empty')}</li>
         )}
       </ul>
     </section>

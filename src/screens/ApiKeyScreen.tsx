@@ -2,19 +2,21 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api, ApiError } from '../api';
 import { getApiKey, setApiKey } from '../auth';
+import { useT } from '../i18n';
 
 export default function ApiKeyScreen({ onSaved }: { onSaved: () => void }) {
   const [value, setValue] = useState(getApiKey());
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const navigate = useNavigate();
+  const t = useT();
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
     setErr(null);
     const trimmed = value.trim();
     if (!trimmed) {
-      setErr('API key is required.');
+      setErr(t('apiKey.required'));
       return;
     }
     setBusy(true);
@@ -25,7 +27,7 @@ export default function ApiKeyScreen({ onSaved }: { onSaved: () => void }) {
       onSaved();
       navigate('/new');
     } catch (e) {
-      const msg = e instanceof ApiError ? e.message : 'Could not reach the server.';
+      const msg = e instanceof ApiError ? e.message : t('apiKey.unreachable');
       setErr(msg);
     } finally {
       setBusy(false);
@@ -34,26 +36,23 @@ export default function ApiKeyScreen({ onSaved }: { onSaved: () => void }) {
 
   return (
     <section>
-      <h2>API key</h2>
-      <p className="muted">
-        Paste your personal API key. It is stored in your browser&apos;s
-        localStorage on this device only.
-      </p>
+      <h2>{t('apiKey.title')}</h2>
+      <p className="muted">{t('apiKey.help')}</p>
       <form onSubmit={save}>
         <label>
-          <span className="lbl">Key</span>
+          <span className="lbl">{t('apiKey.label')}</span>
           <input
             className="big-input"
             type="password"
             autoComplete="off"
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            placeholder="paste key here"
+            placeholder={t('apiKey.placeholder')}
           />
         </label>
         {err && <div className="error">{err}</div>}
         <button className="primary" disabled={busy}>
-          {busy ? 'Verifying…' : 'Save'}
+          {busy ? t('apiKey.verifying') : t('apiKey.save')}
         </button>
       </form>
     </section>
