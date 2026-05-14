@@ -1,0 +1,136 @@
+:root {
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  color: #1a1a1a;
+  background: #fafafa;
+  line-height: 1.4;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+}
+
+.app {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+nav {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+nav a {
+  color: #333;
+  text-decoration: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+nav a.active { background: #1a1a1a; color: #fff; }
+nav .spacer { flex: 1; }
+
+button {
+  font: inherit;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid #1a1a1a;
+  background: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+button.primary { background: #1a1a1a; color: #fff; }
+button.danger { border-color: #b00020; color: #b00020; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+input, select {
+  font: inherit;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  background: #fff;
+}
+
+label {
+  display: block;
+  margin-bottom: 1rem;
+}
+label .lbl {
+  display: block;
+  font-size: 0.85rem;
+  color: #555;
+  margin-bottom: 0.25rem;
+}
+
+.big-input {
+  width: 100%;
+  font-size: 1.5rem;
+  padding: 0.6rem 0.8rem;
+}
+
+.small-input {
+  width: 100%;
+  font-size: 0.95rem;
+}
+
+.error { color: #b00020; margin: 0.5rem 0; }
+.muted { color: #777; font-size: 0.9rem; }
+
+.row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.expense-list { list-style: none; padding: 0; margin: 0; }
+.expense-list li {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #eee;
+}
+.expense-list .amount { font-weight: 600; min-width: 6rem; }
+.expense-list .note { color: #555; flex: 1; font-size: 0.9rem; }
+.expense-list .when { color: #999; font-size: 0.8rem; }
+
+.tag-chip {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+}
+
+.filter-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: end;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.combobox { position: relative; }
+.combobox .options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #bbb;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  max-height: 12rem;
+  overflow-y: auto;
+  z-index: 10;
+}
+.combobox .options div {
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+}
+.combobox .options div:hover,
+.combobox .options div.highlight { background: #f0f0f0; }
+.combobox .options .create { font-style: italic; }
