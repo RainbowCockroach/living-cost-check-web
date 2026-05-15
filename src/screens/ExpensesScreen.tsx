@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { api, ApiError, type Expense } from '../api';
+import { api, ApiError, type Transaction, type TxKind } from '../api';
 import { readableTextColor } from '../colors';
 import { useI18n } from '../i18n';
 
@@ -21,10 +21,13 @@ export default function ExpensesScreen() {
   const initial = currentMonthRange();
   const [from, setFrom] = useState(initial.from);
   const [to, setTo] = useState(initial.to);
-  const [items, setItems] = useState<Expense[]>([]);
+  const [kind, setKind] = useState<TxKind>('outflow');
+  const [items, setItems] = useState<Transaction[]>([]);
   const [total, setTotal] = useState(0);
-  // Sum across the full range from the server, independent of the list's
-  // pagination limit so the headline figure is correct even when truncated.
+  // Sum across the full range. For outflows we use /reports/total (server-
+  // side aggregate). For inflows we fall back to summing the page locally —
+  // /reports/total is intentionally outflow-only and a separate inflow report
+  // would just be cargo cult.
   const [rangeSum, setRangeSum] = useState(0);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -35,23 +38,28 @@ export default function ExpensesScreen() {
     setLoading(true);
     setErr(null);
     try {
-      // Send the date as start-of-day for `from` and end-of-day for `to` so the
-      // filter is inclusive of both endpoints in local time.
       const fromIso = `${from}T00:00:00`;
       const toIso = `${to}T23:59:59`;
-      const [res, totals] = await Promise.all([
-        api.listExpenses({ from: fromIso, to: toIso, limit: 500 }),
-        api.totalExpenses({ from: fromIso, to: toIso }),
-      ]);
+      const res = await api.listTransactions({
+        from: fromIso,
+        to: toIso,
+        kind,
+        limit: 500,
+      });
       setItems(res.items);
       setTotal(res.total);
-      setRangeSum(totals.total);
+      if (kind === 'outflow') {
+        const totals = await api.totalOutflows({ from: fromIso, to: toIso });
+        setRangeSum(totals.total);
+      } else {
+        setRangeSum(res.items.reduce((s, x) => s + x.amount, 0));
+      }
     } catch (e) {
       setErr(e instanceof ApiError ? e.message : t('expenses.loadFailed'));
     } finally {
       setLoading(false);
     }
-  }, [from, to, t]);
+  }, [from, to, kind, t]);
 
   useEffect(() => {
     load();
@@ -59,7 +67,7 @@ export default function ExpensesScreen() {
 
   async function onDelete(id: number) {
     try {
-      await api.deleteExpense(id);
+      await api.deleteTransaction(id);
       const removed = items.find((x) => x.id === id);
       setItems((cur) => cur.filter((x) => x.id !== id));
       setTotal((n) => Math.max(0, n - 1));
@@ -69,10 +77,32 @@ export default function ExpensesScreen() {
     }
   }
 
-
   return (
     <section>
       <h2>{t('expenses.title')}</h2>
+
+      <div className="kind-toggle" role="tablist" style={{ marginBottom: '0.5rem' }}>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={kind === 'outflow'}
+          className={kind === 'outflow' ? 'primary' : ''}
+          onClick={() => setKind('outflow')}
+        >
+          {t('new.kindExpense')}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={kind === 'inflow'}
+          className={kind === 'inflow' ? 'primary' : ''}
+          onClick={() => setKind('inflow')}
+          style={{ marginLeft: '0.4rem' }}
+        >
+          {t('new.kindIncome')}
+        </button>
+      </div>
+
       <div className="filter-row">
         <label style={{ margin: 0 }}>
           <span className="lbl">{t('expenses.from')}</span>
@@ -111,9 +141,13 @@ export default function ExpensesScreen() {
       <ul className="expense-list">
         {items.map((x) => {
           const bg = x.tag.color ?? '#ddd';
+          const sign = kind === 'inflow' ? '+' : '';
           return (
             <li key={x.id}>
-              <span className="amount">{x.amount.toLocaleString(locale)} ₫</span>
+              <span className="amount">
+                {sign}
+                {x.amount.toLocaleString(locale)} ₫
+              </span>
               <span
                 className="tag-chip"
                 style={{ background: bg, color: readableTextColor(bg) }}

@@ -1,16 +1,48 @@
 import { API_BASE_URL } from './config';
 import { clearApiKey, getApiKey } from './auth';
 
-export type Tag = { id: number; name: string; color: string | null };
-export type Expense = {
+export type TxKind = 'outflow' | 'inflow';
+export type TagKind = 'spending' | 'income';
+
+export type Tag = {
+  id: number;
+  name: string;
+  color: string | null;
+  kind: TagKind;
+};
+
+export type Transaction = {
   id: number;
   amount: number;
+  kind: TxKind;
   note: string | null;
   occurredAt: string;
   tagId: number;
   tag: Tag;
   createdById: number | null;
   templateId: number | null;
+};
+
+export type BudgetCategory = {
+  tag: Tag;
+  assigned: number;
+  spent: number;
+  available: number;
+};
+
+export type BudgetView = {
+  period: string;
+  toBeBudgeted: number;
+  categories: BudgetCategory[];
+};
+
+export type UpcomingOccurrence = {
+  templateId: number;
+  tag: Tag;
+  amount: number;
+  kind: TxKind;
+  note: string | null;
+  dueAt: string;
 };
 
 export class ApiError extends Error {
@@ -39,7 +71,6 @@ async function request<T>(
 
   if (res.status === 401) {
     clearApiKey();
-    // Force the app back to the key-entry screen.
     if (location.hash !== '#/key') location.hash = '#/key';
     throw new ApiError(401, 'Invalid API key');
   }
@@ -58,32 +89,40 @@ async function request<T>(
 }
 
 export const api = {
-  // Used by the key-entry screen to validate before saving.
   me: () => request<{ id: number; name: string }>('GET', '/me'),
 
   listTags: () => request<Tag[]>('GET', '/tags'),
-  createTag: (name: string, color?: string) =>
-    request<Tag>('POST', '/tags', { name, color }),
+  createTag: (name: string, color?: string, kind: TagKind = 'spending') =>
+    request<Tag>('POST', '/tags', { name, color, kind }),
 
-  listExpenses: (params: { from?: string; to?: string; limit?: number }) => {
+  listTransactions: (params: {
+    from?: string;
+    to?: string;
+    kind?: TxKind;
+    limit?: number;
+  }) => {
     const q = new URLSearchParams();
     if (params.from) q.set('from', params.from);
     if (params.to) q.set('to', params.to);
+    if (params.kind) q.set('kind', params.kind);
     if (params.limit) q.set('limit', String(params.limit));
-    return request<{ total: number; items: Expense[] }>(
+    return request<{ total: number; items: Transaction[] }>(
       'GET',
-      `/expenses?${q.toString()}`,
+      `/transactions?${q.toString()}`,
     );
   },
-  createExpense: (data: { amount: number; tagId: number; note?: string }) =>
-    request<Expense>('POST', '/expenses', data),
-  deleteExpense: (id: number) =>
-    request<void>('DELETE', `/expenses/${id}`),
+  createTransaction: (data: {
+    amount: number;
+    kind: TxKind;
+    tagId: number;
+    note?: string;
+  }) => request<Transaction>('POST', '/transactions', data),
+  deleteTransaction: (id: number) =>
+    request<void>('DELETE', `/transactions/${id}`),
 
-  // Headline total for a date range — sum of `amount` and count of expenses.
-  // The list endpoint's `total` is a row count, so we use this when the UI
-  // needs the actual sum across the full range (not just the loaded page).
-  totalExpenses: (params: { from?: string; to?: string }) => {
+  // Sum + count for a date range, server-side. Outflow only — matches the
+  // semantics of /reports/by-tag, which the budget UI also leans on.
+  totalOutflows: (params: { from?: string; to?: string }) => {
     const q = new URLSearchParams();
     if (params.from) q.set('from', params.from);
     if (params.to) q.set('to', params.to);
@@ -93,5 +132,26 @@ export const api = {
       total: number;
       count: number;
     }>('GET', `/reports/total?${q.toString()}`);
+  },
+
+  getBudget: (period: string) =>
+    request<BudgetView>('GET', `/budget/${period}`),
+  setAssignment: (period: string, tagId: number, amount: number, note?: string) =>
+    request<{ id: number; period: string; tagId: number; amount: number }>(
+      'PUT',
+      `/budget/${period}/assignments/${tagId}`,
+      { amount, note },
+    ),
+  deleteAssignment: (period: string, tagId: number) =>
+    request<void>('DELETE', `/budget/${period}/assignments/${tagId}`),
+
+  upcomingTemplates: (params: { until?: string; limit?: number } = {}) => {
+    const q = new URLSearchParams();
+    if (params.until) q.set('until', params.until);
+    if (params.limit) q.set('limit', String(params.limit));
+    return request<{ until: string; items: UpcomingOccurrence[] }>(
+      'GET',
+      `/templates/upcoming?${q.toString()}`,
+    );
   },
 };
