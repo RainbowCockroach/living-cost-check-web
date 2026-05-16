@@ -86,6 +86,34 @@ label .lbl {
   padding: 0.6rem 0.8rem;
 }
 
+.input-wrap {
+  position: relative;
+  display: block;
+}
+.input-wrap .big-input {
+  padding-right: 2.4rem;
+}
+.input-clear {
+  position: absolute;
+  top: 50%;
+  right: 0.5rem;
+  transform: translateY(-50%);
+  background: #ddd;
+  color: #333;
+  border: none;
+  border-radius: 50%;
+  width: 1.6rem;
+  height: 1.6rem;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.input-clear:hover { background: #ccc; }
+
 .small-input {
   width: 100%;
   font-size: 0.95rem;
