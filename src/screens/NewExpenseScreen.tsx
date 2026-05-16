@@ -13,6 +13,9 @@ export default function NewExpenseScreen() {
   const [tag, setTag] = useState<Tag | null>(null);
   const [kind, setKind] = useState<TxKind>('outflow');
   const [amount, setAmount] = useState('');
+  // Each "+" press pushes the current amount here so multi-item purchases
+  // (e.g. grocery receipt) can be summed inline without an external calculator.
+  const [parts, setParts] = useState<number[]>([]);
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -38,9 +41,29 @@ export default function NewExpenseScreen() {
     // The previously-selected tag almost certainly belongs to the other kind;
     // clear it so the user picks one that fits.
     setTag(null);
+    setParts([]);
     setErr(null);
     setMsg(null);
   }
+
+  function currentAmount(): number {
+    const n = Number(amount);
+    return Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
+  }
+
+  function addPart() {
+    const n = currentAmount();
+    if (!n) return;
+    setParts((cur) => [...cur, n]);
+    setAmount('');
+  }
+
+  function removePart(idx: number) {
+    setParts((cur) => cur.filter((_, i) => i !== idx));
+  }
+
+  const partsSum = parts.reduce((a, b) => a + b, 0);
+  const total = partsSum + currentAmount();
 
   async function createTag(name: string): Promise<Tag> {
     const color = randomTagColor();
@@ -53,7 +76,7 @@ export default function NewExpenseScreen() {
     e.preventDefault();
     setErr(null);
     setMsg(null);
-    const n = Number(amount);
+    const n = partsSum + currentAmount();
     if (!Number.isInteger(n) || n <= 0) {
       setErr(t('new.invalidAmount'));
       return;
@@ -75,6 +98,7 @@ export default function NewExpenseScreen() {
         t(messageKey, { amount: n.toLocaleString(locale), tag: tag.name }),
       );
       setAmount('');
+      setParts([]);
       setNote('');
       setTag(null);
     } catch (e) {
@@ -115,16 +139,56 @@ export default function NewExpenseScreen() {
       <form onSubmit={submit}>
         <label>
           <span className="lbl">{t('new.amount')}</span>
-          <input
-            className="big-input"
-            type="number"
-            inputMode="numeric"
-            min={1}
-            step={1}
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="0"
-          />
+          <div className="amount-row">
+            <input
+              className="big-input"
+              type="number"
+              inputMode="numeric"
+              min={1}
+              step={1}
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === '+') {
+                  e.preventDefault();
+                  addPart();
+                }
+              }}
+              placeholder="0"
+            />
+            <button
+              type="button"
+              className="add-part"
+              aria-label={t('new.addPart')}
+              onClick={addPart}
+              disabled={!currentAmount()}
+            >
+              +
+            </button>
+          </div>
+          {parts.length > 0 && (
+            <div className="parts-row">
+              {parts.map((p, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  className="part-chip"
+                  aria-label={t('new.removePart', {
+                    amount: p.toLocaleString(locale),
+                  })}
+                  onClick={() => removePart(i)}
+                  title={t('new.removePart', {
+                    amount: p.toLocaleString(locale),
+                  })}
+                >
+                  {p.toLocaleString(locale)} ×
+                </button>
+              ))}
+              <span className="parts-total">
+                {t('new.partsTotal', { amount: total.toLocaleString(locale) })}
+              </span>
+            </div>
+          )}
         </label>
 
         <label>

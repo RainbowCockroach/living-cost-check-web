@@ -43,6 +43,9 @@ const messages = {
     "new.invalidAmount": "Số tiền phải là số nguyên dương (VND).",
     "new.pickTag": "Chọn hoặc tạo một loại.",
     "new.failed": "Lưu không thành công.",
+    "new.addPart": "Cộng vào tổng",
+    "new.removePart": "Bỏ {amount} ₫",
+    "new.partsTotal": "Tổng: {amount} ₫",
 
     "expenses.title": "Giao dịch",
     "expenses.from": "Từ",
@@ -109,6 +112,9 @@ const messages = {
     "new.invalidAmount": "Amount must be a positive whole number (VND).",
     "new.pickTag": "Pick or create a tag.",
     "new.failed": "Failed to save.",
+    "new.addPart": "Add to total",
+    "new.removePart": "Remove {amount} ₫",
+    "new.partsTotal": "Total: {amount} ₫",
 
     "expenses.title": "Transactions",
     "expenses.from": "From",

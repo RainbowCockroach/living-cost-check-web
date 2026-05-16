@@ -114,6 +114,42 @@ label .lbl {
 }
 .input-clear:hover { background: #ccc; }
 
+.amount-row {
+  display: flex;
+  gap: 0.4rem;
+  align-items: stretch;
+}
+.amount-row .big-input { flex: 1; min-width: 0; }
+.add-part {
+  font-size: 1.4rem;
+  line-height: 1;
+  padding: 0 0.9rem;
+  font-weight: 600;
+}
+
+.parts-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+.part-chip {
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 0.2rem 0.55rem;
+  border: 1px solid #bbb;
+  background: #f3f3f3;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.part-chip:hover { background: #e8e8e8; }
+.parts-total {
+  font-size: 0.9rem;
+  color: #555;
+  margin-left: auto;
+}
+
 .small-input {
   width: 100%;
   font-size: 0.95rem;
