@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { api, ApiError } from '../api';
 import { getApiKey, setApiKey } from '../auth';
 import { useT } from '../i18n';
+import ClearableInput from '../components/ClearableInput';
 
 export default function ApiKeyScreen({ onSaved }: { onSaved: () => void }) {
   const [value, setValue] = useState(getApiKey());
@@ -41,26 +42,15 @@ export default function ApiKeyScreen({ onSaved }: { onSaved: () => void }) {
       <form onSubmit={save}>
         <label>
           <span className="lbl">{t('apiKey.label')}</span>
-          <span className="input-wrap">
-            <input
-              className="big-input"
-              type="password"
-              autoComplete="off"
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              placeholder={t('apiKey.placeholder')}
-            />
-            {value && (
-              <button
-                type="button"
-                className="input-clear"
-                aria-label="Clear"
-                onClick={() => setValue('')}
-              >
-                ×
-              </button>
-            )}
-          </span>
+          <ClearableInput
+            className="big-input"
+            type="password"
+            autoComplete="off"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            placeholder={t('apiKey.placeholder')}
+            onClear={() => setValue('')}
+          />
         </label>
         {err && <div className="error">{err}</div>}
         <button className="primary" disabled={busy}>
