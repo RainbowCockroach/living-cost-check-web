@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Tag } from "../api";
 import { useT } from "../i18n";
+import ClearableInput from "./ClearableInput";
 
 type Props = {
   tags: Tag[];
@@ -8,6 +9,7 @@ type Props = {
   onChange: (tag: Tag | null) => void;
   // Called when the user selects "Create <name>". Parent issues the POST /tags.
   onCreate: (name: string) => Promise<Tag>;
+  placeholder?: string;
 };
 
 export default function TagCombobox({
@@ -15,6 +17,7 @@ export default function TagCombobox({
   value,
   onChange,
   onCreate,
+  placeholder,
 }: Props) {
   const [text, setText] = useState(value?.name ?? "");
   const [open, setOpen] = useState(false);
@@ -90,9 +93,15 @@ export default function TagCombobox({
     }
   }
 
+  function clear() {
+    setText("");
+    onChange(null);
+    setHi(0);
+  }
+
   return (
     <div className="combobox" ref={wrap}>
-      <input
+      <ClearableInput
         className="big-input"
         value={text}
         onChange={(e) => {
@@ -106,6 +115,8 @@ export default function TagCombobox({
         onKeyDown={onKeyDown}
         disabled={busy}
         autoComplete="off"
+        placeholder={placeholder}
+        onClear={clear}
       />
       {open && optionCount > 0 && (
         <div className="options">

@@ -43,6 +43,11 @@ const messages = {
     "new.invalidAmount": "Số tiền phải là số nguyên dương (VND).",
     "new.pickTag": "Chọn hoặc tạo một loại.",
     "new.failed": "Lưu không thành công.",
+    "new.addPart": "Cộng vào tổng",
+    "new.removePart": "Bỏ {amount} ₫",
+    "new.partsTotal": "Tổng: {amount} ₫",
+    "new.recentTags": "Loại hay dùng",
+    "new.addNote": "+ Thêm chú thích",
 
     "expenses.title": "Giao dịch",
     "expenses.from": "Từ",
@@ -63,7 +68,8 @@ const messages = {
     "budget.next": "Tháng sau",
     "budget.thisMonth": "Tháng này",
     "budget.toBeBudgeted": "Còn lại để phân bổ: {amount} ₫",
-    "budget.empty": "Chưa có loại chi tiêu nào. Tạo một loại bằng cách thêm một khoản chi.",
+    "budget.empty":
+      "Chưa có loại chi tiêu nào. Tạo một loại bằng cách thêm một khoản chi.",
     "budget.col.tag": "Loại",
     "budget.col.assigned": "Phân bổ",
     "budget.col.spent": "Đã chi",
@@ -109,6 +115,11 @@ const messages = {
     "new.invalidAmount": "Amount must be a positive whole number (VND).",
     "new.pickTag": "Pick or create a tag.",
     "new.failed": "Failed to save.",
+    "new.addPart": "Add to total",
+    "new.removePart": "Remove {amount} ₫",
+    "new.partsTotal": "Total: {amount} ₫",
+    "new.recentTags": "Frequently used",
+    "new.addNote": "+ Add a note",
 
     "expenses.title": "Transactions",
     "expenses.from": "From",
