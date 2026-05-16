@@ -6,6 +6,7 @@ import ApiKeyScreen from './screens/ApiKeyScreen';
 import NewExpenseScreen from './screens/NewExpenseScreen';
 import ExpensesScreen from './screens/ExpensesScreen';
 import BudgetScreen from './screens/BudgetScreen';
+import TagsScreen from './screens/TagsScreen';
 
 export default function App() {
   // `keyVersion` lets child screens trigger a re-render of the guard after the
@@ -35,6 +36,9 @@ export default function App() {
         <NavLink to="/budget" className={({ isActive }) => (isActive ? 'active' : '')}>
           {t('nav.budget')}
         </NavLink>
+        <NavLink to="/tags" className={({ isActive }) => (isActive ? 'active' : '')}>
+          {t('nav.tags')}
+        </NavLink>
         <LanguageSwitcher />
         <NavLink to="/key" className={({ isActive }) => (isActive ? 'active' : '')}>
           {t('nav.apiKey')}
@@ -54,6 +58,10 @@ export default function App() {
         <Route
           path="/budget"
           element={authed ? <BudgetScreen /> : <Navigate to="/key" replace />}
+        />
+        <Route
+          path="/tags"
+          element={authed ? <TagsScreen /> : <Navigate to="/key" replace />}
         />
         <Route
           path="*"
