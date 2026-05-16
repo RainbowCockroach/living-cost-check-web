@@ -1,12 +1,13 @@
-import { useCallback, useEffect, useState } from 'react';
-import { api, ApiError, type Transaction, type TxKind } from '../api';
-import { readableTextColor } from '../colors';
-import { useI18n } from '../i18n';
+import { useCallback, useEffect, useState } from "react";
+import { api, ApiError, type Transaction, type TxKind } from "../api";
+import { readableTextColor } from "../colors";
+import KindSegmented from "../components/KindSegmented";
+import { useI18n } from "../i18n";
 
 function ymd(d: Date): string {
   const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
 }
 
@@ -21,7 +22,7 @@ export default function ExpensesScreen() {
   const initial = currentMonthRange();
   const [from, setFrom] = useState(initial.from);
   const [to, setTo] = useState(initial.to);
-  const [kind, setKind] = useState<TxKind>('outflow');
+  const [kind, setKind] = useState<TxKind>("outflow");
   const [items, setItems] = useState<Transaction[]>([]);
   const [total, setTotal] = useState(0);
   // Sum across the full range. For outflows we use /reports/total (server-
@@ -48,14 +49,14 @@ export default function ExpensesScreen() {
       });
       setItems(res.items);
       setTotal(res.total);
-      if (kind === 'outflow') {
+      if (kind === "outflow") {
         const totals = await api.totalOutflows({ from: fromIso, to: toIso });
         setRangeSum(totals.total);
       } else {
         setRangeSum(res.items.reduce((s, x) => s + x.amount, 0));
       }
     } catch (e) {
-      setErr(e instanceof ApiError ? e.message : t('expenses.loadFailed'));
+      setErr(e instanceof ApiError ? e.message : t("expenses.loadFailed"));
     } finally {
       setLoading(false);
     }
@@ -73,78 +74,77 @@ export default function ExpensesScreen() {
       setTotal((n) => Math.max(0, n - 1));
       if (removed) setRangeSum((s) => Math.max(0, s - removed.amount));
     } catch (e) {
-      setErr(e instanceof ApiError ? e.message : t('expenses.deleteFailed'));
+      setErr(e instanceof ApiError ? e.message : t("expenses.deleteFailed"));
     }
   }
 
   return (
-    <section>
-      <h2>{t('expenses.title')}</h2>
+    <section className="expenses">
+      <KindSegmented
+        value={kind}
+        onChange={setKind}
+        ariaLabel={t("expenses.title")}
+      />
 
-      <div className="kind-toggle" role="tablist" style={{ marginBottom: '0.5rem' }}>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={kind === 'outflow'}
-          className={kind === 'outflow' ? 'primary' : ''}
-          onClick={() => setKind('outflow')}
-        >
-          {t('new.kindExpense')}
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={kind === 'inflow'}
-          className={kind === 'inflow' ? 'primary' : ''}
-          onClick={() => setKind('inflow')}
-          style={{ marginLeft: '0.4rem' }}
-        >
-          {t('new.kindIncome')}
-        </button>
+      <div className="date-range">
+        <div className="field">
+          <div className="field__label">{t("expenses.from")}</div>
+          <input
+            type="date"
+            value={from}
+            onChange={(e) => setFrom(e.target.value)}
+          />
+        </div>
+        <div className="field">
+          <div className="field__label">{t("expenses.to")}</div>
+          <input
+            type="date"
+            value={to}
+            onChange={(e) => setTo(e.target.value)}
+          />
+        </div>
       </div>
 
-      <div className="filter-row">
-        <label style={{ margin: 0 }}>
-          <span className="lbl">{t('expenses.from')}</span>
-          <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
-        </label>
-        <label style={{ margin: 0 }}>
-          <span className="lbl">{t('expenses.to')}</span>
-          <input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
-        </label>
+      <div className="expenses__actions">
         <button onClick={load} disabled={loading}>
-          {loading ? t('expenses.loading') : t('expenses.refresh')}
+          {loading ? t("expenses.loading") : t("expenses.refresh")}
         </button>
-        <span className="spacer" style={{ flex: 1 }} />
         <button
-          className={editMode ? 'primary' : ''}
+          className={editMode ? "primary" : ""}
           onClick={() => setEditMode((v) => !v)}
         >
-          {editMode ? t('expenses.done') : t('expenses.edit')}
+          {editMode ? t("expenses.done") : t("expenses.edit")}
         </button>
       </div>
 
-      <div className="range-total" style={{ fontSize: '1.25rem', fontWeight: 600, margin: '0.25rem 0' }}>
-        {t('expenses.rangeTotal', { total: rangeSum.toLocaleString(locale) })}
+      <div
+        className={`range-total range-total--${kind === "inflow" ? "in" : "out"}`}
+      >
+        {t("expenses.rangeTotal", { total: rangeSum.toLocaleString(locale) })}
       </div>
-
-      <div className="muted" style={{ marginBottom: '0.5rem' }}>
-        {t('expenses.summary', {
+      <div className="muted expenses__summary">
+        {t("expenses.summary", {
           shown: items.length,
           total,
           sum: rangeSum.toLocaleString(locale),
         })}
       </div>
 
-      {err && <div className="error">{err}</div>}
+      {err && (
+        <div className="error" role="alert">
+          {err}
+        </div>
+      )}
 
       <ul className="expense-list">
         {items.map((x) => {
-          const bg = x.tag.color ?? '#ddd';
-          const sign = kind === 'inflow' ? '+' : '';
+          const bg = x.tag.color ?? "#ddd";
+          const sign = kind === "inflow" ? "+" : "";
           return (
             <li key={x.id}>
-              <span className="amount">
+              <span
+                className={`amount amount--${kind === "inflow" ? "in" : "out"}`}
+              >
                 {sign}
                 {x.amount.toLocaleString(locale)} ₫
               </span>
@@ -154,20 +154,20 @@ export default function ExpensesScreen() {
               >
                 {x.tag.name}
               </span>
-              <span className="note">{x.note ?? ''}</span>
+              {x.note && <span className="note">{x.note}</span>}
               <span className="when">
                 {new Date(x.occurredAt).toLocaleDateString(locale)}
               </span>
               {editMode && (
                 <button className="danger" onClick={() => onDelete(x.id)}>
-                  {t('expenses.delete')}
+                  {t("expenses.delete")}
                 </button>
               )}
             </li>
           );
         })}
         {!loading && items.length === 0 && (
-          <li className="muted">{t('expenses.empty')}</li>
+          <li className="muted">{t("expenses.empty")}</li>
         )}
       </ul>
     </section>
