@@ -22,8 +22,15 @@ export default function NewExpenseScreen() {
   const [msg, setMsg] = useState<string | null>(null);
   const { t, locale } = useI18n();
 
+  function reloadTags() {
+    return api
+      .listTags()
+      .then(setTags)
+      .catch((e: ApiError) => setErr(e.message));
+  }
+
   useEffect(() => {
-    api.listTags().then(setTags).catch((e: ApiError) => setErr(e.message));
+    reloadTags();
   }, []);
 
   const tagKindForCurrent = kind === 'outflow' ? 'spending' : 'income';
@@ -68,7 +75,9 @@ export default function NewExpenseScreen() {
   async function createTag(name: string): Promise<Tag> {
     const color = randomTagColor();
     const created = await api.createTag(name, color, tagKindForCurrent);
-    setTags((cur) => [...cur, created]);
+    // Refetch instead of appending so the new tag lands in the server's
+    // canonical order (lastUsedAt desc, then createdAt desc).
+    await reloadTags();
     return created;
   }
 
@@ -101,6 +110,9 @@ export default function NewExpenseScreen() {
       setParts([]);
       setNote('');
       setTag(null);
+      // Server just bumped this tag's lastUsedAt; refresh so the next entry
+      // on this still-mounted screen sees the updated ordering.
+      await reloadTags();
     } catch (e) {
       setErr(e instanceof ApiError ? e.message : t('new.failed'));
     } finally {
