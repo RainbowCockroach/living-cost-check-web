@@ -169,7 +169,7 @@ export default function BudgetScreen() {
                   <td
                     style={{
                       textAlign: 'right',
-                      color: overspent ? 'crimson' : undefined,
+                      color: overspent ? 'var(--danger)' : undefined,
                       fontWeight: overspent ? 600 : undefined,
                     }}
                   >
