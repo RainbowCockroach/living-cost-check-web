@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api, ApiError, type Tag, type TxKind } from "../api";
 import TagCombobox from "../components/TagCombobox";
+import KindSegmented from "../components/KindSegmented";
 import { randomTagColor, readableTextColor } from "../colors";
 import { useI18n, type MessageKey } from "../i18n";
 
@@ -8,18 +9,6 @@ import { useI18n, type MessageKey } from "../i18n";
 // money out (an expense) or money in (income). The tag combobox filters by
 // matching tag kind so an "income" tag never appears in the expense flow and
 // vice-versa; new tags created inline inherit the current kind.
-
-// Data-driving the toggle keeps the two halves in structural lockstep —
-// adding a third kind in future would be a one-line change.
-const KINDS: {
-  value: TxKind;
-  glyph: string;
-  labelKey: MessageKey;
-  mod: "out" | "in";
-}[] = [
-  { value: "outflow", glyph: "−", labelKey: "new.kindExpense", mod: "out" },
-  { value: "inflow", glyph: "+", labelKey: "new.kindIncome", mod: "in" },
-];
 
 const QUICK_PICK_LIMIT = 6;
 
@@ -131,30 +120,11 @@ export default function NewExpenseScreen() {
 
   return (
     <section className="new-tx">
-      <div
-        className="kind-segmented"
-        role="tablist"
-        aria-label={t(kind === "outflow" ? "new.title" : "new.titleIncome")}
-      >
-        {KINDS.map((k) => {
-          const active = kind === k.value;
-          return (
-            <button
-              key={k.value}
-              type="button"
-              role="tab"
-              aria-selected={active}
-              className={`kind-segmented__btn kind-segmented__btn--${k.mod} ${active ? "is-active" : ""}`}
-              onClick={() => switchKind(k.value)}
-            >
-              <span className="kind-segmented__glyph" aria-hidden>
-                {k.glyph}
-              </span>
-              {t(k.labelKey)}
-            </button>
-          );
-        })}
-      </div>
+      <KindSegmented
+        value={kind}
+        onChange={switchKind}
+        ariaLabel={t(kind === "outflow" ? "new.title" : "new.titleIncome")}
+      />
 
       <form onSubmit={submit}>
         <div className="field">

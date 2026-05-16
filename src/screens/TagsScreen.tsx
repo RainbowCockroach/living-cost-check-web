@@ -6,6 +6,12 @@ import { useT } from '../i18n';
 // CRUD for both spending and income tags. Two tabs share the same list state;
 // PATCH/DELETE go straight to the server and we reload on success. Inline edit
 // matches BudgetScreen: edits commit on blur or Enter, no per-row save button.
+//
+// The kind tabs are intentionally plain buttons (not the KindSegmented pill) —
+// spending/income tags do map 1:1 to outflow/inflow, but here we're filtering
+// a list rather than authoring a transaction, so the colored +/− glyph and the
+// red/green underline would over-signal direction. A subtle .is-active state
+// is enough.
 export default function TagsScreen() {
   const [tags, setTags] = useState<Tag[]>([]);
   const [tab, setTab] = useState<TagKind>('spending');
@@ -127,29 +133,35 @@ export default function TagsScreen() {
   const visible = tags.filter((x) => x.kind === tab);
 
   return (
-    <section>
+    <section className="tags">
       <h2>{t('tags.title')}</h2>
 
-      <div className="filter-row">
+      <div className="tags__tabs" role="tablist">
         <button
+          type="button"
+          role="tab"
+          aria-selected={tab === 'spending'}
+          className={`tags__tab ${tab === 'spending' ? 'is-active' : ''}`}
           onClick={() => setTab('spending')}
-          className={tab === 'spending' ? 'active' : ''}
         >
           {t('tags.tab.spending')}
         </button>
         <button
+          type="button"
+          role="tab"
+          aria-selected={tab === 'income'}
+          className={`tags__tab ${tab === 'income' ? 'is-active' : ''}`}
           onClick={() => setTab('income')}
-          className={tab === 'income' ? 'active' : ''}
         >
           {t('tags.tab.income')}
         </button>
-        <span className="spacer" style={{ flex: 1 }} />
+        <span className="spacer" />
         <button onClick={load} disabled={loading}>
           {loading ? t('expenses.loading') : t('expenses.refresh')}
         </button>
       </div>
 
-      <div className="filter-row" style={{ marginTop: '0.5rem' }}>
+      <div className="field tags__create">
         <input
           type="text"
           placeholder={t('tags.new.name')}
@@ -159,93 +171,85 @@ export default function TagsScreen() {
             if (e.key === 'Enter') create();
           }}
           disabled={creating}
-          style={{ flex: 1 }}
         />
         <button onClick={create} disabled={creating || !newName.trim()}>
           {t('tags.new.add')}
         </button>
       </div>
 
-      {err && <div className="error">{err}</div>}
+      {err && <div className="error" role="alert">{err}</div>}
 
       {!loading && visible.length === 0 && (
         <div className="muted">{t('tags.empty')}</div>
       )}
 
       {visible.length > 0 && (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th style={{ textAlign: 'left' }}>{t('tags.col.name')}</th>
-              <th style={{ textAlign: 'left' }}>{t('tags.col.color')}</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {visible.map((tag) => {
-              const nameValue =
-                nameDrafts[tag.id] !== undefined ? nameDrafts[tag.id] : tag.name;
-              const colorValue =
-                colorDrafts[tag.id] !== undefined
-                  ? colorDrafts[tag.id]
-                  : tag.color ?? '#cccccc';
-              const chipBg = colorValue || '#ddd';
-              const isSaving = savingId === tag.id;
-              return (
-                <tr key={tag.id}>
-                  <td style={{ padding: '0.25rem 0' }}>
-                    <span
-                      className="tag-chip"
-                      style={{
-                        background: chipBg,
-                        color: readableTextColor(chipBg),
-                        marginRight: '0.5rem',
-                      }}
-                    >
-                      {tag.name}
-                    </span>
-                    <input
-                      type="text"
-                      value={nameValue}
-                      disabled={isSaving}
-                      onChange={(e) =>
-                        setNameDrafts((d) => ({ ...d, [tag.id]: e.target.value }))
-                      }
-                      onBlur={() => commitName(tag)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter')
-                          (e.target as HTMLInputElement).blur();
-                      }}
-                    />
-                  </td>
-                  <td style={{ padding: '0.25rem 0' }}>
-                    <input
-                      type="color"
-                      value={
-                        /^#[0-9a-fA-F]{6}$/.test(colorValue)
-                          ? colorValue
-                          : '#cccccc'
-                      }
-                      disabled={isSaving}
-                      onChange={(e) =>
-                        setColorDrafts((d) => ({
-                          ...d,
-                          [tag.id]: e.target.value,
-                        }))
-                      }
-                      onBlur={() => commitColor(tag)}
-                    />
-                  </td>
-                  <td style={{ padding: '0.25rem 0', textAlign: 'right' }}>
-                    <button onClick={() => remove(tag)} disabled={isSaving}>
-                      {t('tags.delete')}
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        <div className="tag-rows">
+          <div className="tag-rows__head">
+            <span>{t('tags.col.name')}</span>
+            <span>{t('tags.col.color')}</span>
+          </div>
+          {visible.map((tag) => {
+            const nameValue =
+              nameDrafts[tag.id] !== undefined ? nameDrafts[tag.id] : tag.name;
+            const colorValue =
+              colorDrafts[tag.id] !== undefined
+                ? colorDrafts[tag.id]
+                : tag.color ?? '#cccccc';
+            const chipBg = colorValue || '#ddd';
+            const isSaving = savingId === tag.id;
+            return (
+              <div className="tag-row" key={tag.id}>
+                <div className="tag-row__name">
+                  <span
+                    className="tag-chip"
+                    style={{
+                      background: chipBg,
+                      color: readableTextColor(chipBg),
+                    }}
+                  >
+                    {tag.name}
+                  </span>
+                  <input
+                    type="text"
+                    value={nameValue}
+                    disabled={isSaving}
+                    onChange={(e) =>
+                      setNameDrafts((d) => ({ ...d, [tag.id]: e.target.value }))
+                    }
+                    onBlur={() => commitName(tag)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter')
+                        (e.target as HTMLInputElement).blur();
+                    }}
+                  />
+                </div>
+                <div className="tag-row__color">
+                  <input
+                    type="color"
+                    aria-label={t('tags.col.color')}
+                    value={
+                      /^#[0-9a-fA-F]{6}$/.test(colorValue)
+                        ? colorValue
+                        : '#cccccc'
+                    }
+                    disabled={isSaving}
+                    onChange={(e) =>
+                      setColorDrafts((d) => ({
+                        ...d,
+                        [tag.id]: e.target.value,
+                      }))
+                    }
+                    onBlur={() => commitColor(tag)}
+                  />
+                  <button onClick={() => remove(tag)} disabled={isSaving}>
+                    {t('tags.delete')}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       )}
     </section>
   );
