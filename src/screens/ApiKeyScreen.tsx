@@ -41,14 +41,26 @@ export default function ApiKeyScreen({ onSaved }: { onSaved: () => void }) {
       <form onSubmit={save}>
         <label>
           <span className="lbl">{t('apiKey.label')}</span>
-          <input
-            className="big-input"
-            type="password"
-            autoComplete="off"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            placeholder={t('apiKey.placeholder')}
-          />
+          <span className="input-wrap">
+            <input
+              className="big-input"
+              type="password"
+              autoComplete="off"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              placeholder={t('apiKey.placeholder')}
+            />
+            {value && (
+              <button
+                type="button"
+                className="input-clear"
+                aria-label="Clear"
+                onClick={() => setValue('')}
+              >
+                ×
+              </button>
+            )}
+          </span>
         </label>
         {err && <div className="error">{err}</div>}
         <button className="primary" disabled={busy}>
