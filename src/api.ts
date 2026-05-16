@@ -94,6 +94,11 @@ export const api = {
   listTags: () => request<Tag[]>('GET', '/tags'),
   createTag: (name: string, color?: string, kind: TagKind = 'spending') =>
     request<Tag>('POST', '/tags', { name, color, kind }),
+  updateTag: (
+    id: number,
+    patch: { name?: string; color?: string | null; kind?: TagKind },
+  ) => request<Tag>('PATCH', `/tags/${id}`, patch),
+  deleteTag: (id: number) => request<void>('DELETE', `/tags/${id}`),
 
   listTransactions: (params: {
     from?: string;

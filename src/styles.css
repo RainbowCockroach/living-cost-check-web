@@ -1,14 +1,50 @@
 :root {
+  color-scheme: light dark;
+
+  --bg:            #f6f3ee;
+  --surface:       #fffdf9;
+  --surface-sunk:  #efeae1;
+  --text:          #2a2724;
+  --text-muted:    #6b6661;
+  --text-faint:    #9a9389;
+  --border:        #e2ddd5;
+  --border-strong: #bdb6ac;
+  --accent:        #2a2724;
+  --accent-text:   #fffdf9;
+  --danger:        #b54040;
+  --success:       #4a8a5c;
+  --hover:         #ebe6dd;
+
   font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  color: #1a1a1a;
-  background: #fafafa;
+  color: var(--text);
+  background: var(--bg);
   line-height: 1.4;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:            #1c1a18;
+    --surface:       #25221f;
+    --surface-sunk:  #2f2b27;
+    --text:          #e8e2d8;
+    --text-muted:    #9a9389;
+    --text-faint:    #6b6661;
+    --border:        #3a3531;
+    --border-strong: #544e48;
+    --accent:        #e8e2d8;
+    --accent-text:   #1c1a18;
+    --danger:        #e08a8a;
+    --success:       #8fcfa0;
+    --hover:         #2f2b27;
+  }
 }
 
 * { box-sizing: border-box; }
 
 body {
   margin: 0;
+  background: var(--bg);
+  color: var(--text);
 }
 
 .app {
@@ -22,7 +58,7 @@ nav {
   flex-wrap: wrap;
   gap: 0.5rem 0.75rem;
   align-items: center;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--border);
   padding-bottom: 0.5rem;
   margin-bottom: 1rem;
 }
@@ -33,40 +69,43 @@ nav button {
 }
 
 nav a {
-  color: #333;
+  color: var(--text-muted);
   text-decoration: none;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
 }
-nav a.active { background: #1a1a1a; color: #fff; }
+nav a.active { background: var(--accent); color: var(--accent-text); }
 
 .lang-switcher {
   font: inherit;
   padding: 0.3rem 0.4rem;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-strong);
   border-radius: 4px;
-  background: #fff;
+  background: var(--surface);
+  color: var(--text);
   cursor: pointer;
 }
 
 button {
   font: inherit;
   padding: 0.4rem 0.8rem;
-  border: 1px solid #1a1a1a;
-  background: #fff;
+  border: 1px solid var(--accent);
+  background: var(--surface);
+  color: var(--text);
   border-radius: 4px;
   cursor: pointer;
 }
-button.primary { background: #1a1a1a; color: #fff; }
-button.danger { border-color: #b00020; color: #b00020; }
+button.primary { background: var(--accent); color: var(--accent-text); }
+button.danger { border-color: var(--danger); color: var(--danger); }
 button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 input, select {
   font: inherit;
   padding: 0.4rem 0.6rem;
-  border: 1px solid #bbb;
+  border: 1px solid var(--border-strong);
   border-radius: 4px;
-  background: #fff;
+  background: var(--surface);
+  color: var(--text);
 }
 
 label {
@@ -76,7 +115,7 @@ label {
 label .lbl {
   display: block;
   font-size: 0.85rem;
-  color: #555;
+  color: var(--text-muted);
   margin-bottom: 0.25rem;
 }
 
@@ -98,8 +137,8 @@ label .lbl {
   top: 50%;
   right: 0.5rem;
   transform: translateY(-50%);
-  background: #ddd;
-  color: #333;
+  background: var(--surface-sunk);
+  color: var(--text-muted);
   border: none;
   border-radius: 50%;
   width: 1.6rem;
@@ -112,7 +151,7 @@ label .lbl {
   justify-content: center;
   padding: 0;
 }
-.input-clear:hover { background: #ccc; }
+.input-clear:hover { background: var(--hover); }
 
 .amount-row {
   display: flex;
@@ -147,15 +186,16 @@ label .lbl {
   font: inherit;
   font-size: 0.85rem;
   padding: 0.2rem 0.55rem;
-  border: 1px solid #bbb;
-  background: #f3f3f3;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-sunk);
+  color: var(--text);
   border-radius: 999px;
   cursor: pointer;
 }
-.part-chip:hover { background: #e8e8e8; }
+.part-chip:hover { background: var(--hover); }
 .parts-total {
   font-size: 0.9rem;
-  color: #555;
+  color: var(--text-muted);
   margin-left: auto;
 }
 
@@ -164,8 +204,8 @@ label .lbl {
   font-size: 0.95rem;
 }
 
-.error { color: #b00020; margin: 0.5rem 0; }
-.muted { color: #777; font-size: 0.9rem; }
+.error { color: var(--danger); margin: 0.5rem 0; }
+.muted { color: var(--text-muted); font-size: 0.9rem; }
 
 .row {
   display: flex;
@@ -179,11 +219,11 @@ label .lbl {
   gap: 0.75rem;
   align-items: center;
   padding: 0.6rem 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border);
 }
 .expense-list .amount { font-weight: 600; min-width: 6rem; }
-.expense-list .note { color: #555; flex: 1; font-size: 0.9rem; }
-.expense-list .when { color: #999; font-size: 0.8rem; }
+.expense-list .note { color: var(--text-muted); flex: 1; font-size: 0.9rem; }
+.expense-list .when { color: var(--text-faint); font-size: 0.8rem; }
 
 .tag-chip {
   display: inline-block;
@@ -213,8 +253,8 @@ label .lbl {
    the active half, not by a filled background. */
 .kind-segmented {
   display: flex;
-  background: #f0f0f0;
-  border: 1px solid #ddd;
+  background: var(--surface-sunk);
+  border: 1px solid var(--border);
   border-radius: 4px;
   margin-bottom: 1rem;
   overflow: hidden;
@@ -229,25 +269,25 @@ label .lbl {
   padding: 0.2rem 0.5rem;
   border: none;
   background: transparent;
-  color: #666;
+  color: var(--text-muted);
   font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
   border-radius: 0;
 }
 .kind-segmented__btn + .kind-segmented__btn {
-  border-left: 1px solid #ddd;
+  border-left: 1px solid var(--border);
 }
 .kind-segmented__btn.is-active {
   font-weight: 600;
 }
 .kind-segmented__btn--out.is-active {
-  color: #b00020;
-  box-shadow: inset 0 -2px 0 #b00020;
+  color: var(--danger);
+  box-shadow: inset 0 -2px 0 var(--danger);
 }
 .kind-segmented__btn--in.is-active {
-  color: #0a7a3b;
-  box-shadow: inset 0 -2px 0 #0a7a3b;
+  color: var(--success);
+  box-shadow: inset 0 -2px 0 var(--success);
 }
 .kind-segmented__glyph {
   display: inline-flex;
@@ -258,16 +298,16 @@ label .lbl {
   font-size: 0.85rem;
   line-height: 1;
   font-weight: 700;
-  color: #aaa;
+  color: var(--text-faint);
 }
-.kind-segmented__btn--out.is-active .kind-segmented__glyph { color: #b00020; }
-.kind-segmented__btn--in.is-active  .kind-segmented__glyph { color: #0a7a3b; }
+.kind-segmented__btn--out.is-active .kind-segmented__glyph { color: var(--danger); }
+.kind-segmented__btn--in.is-active  .kind-segmented__glyph { color: var(--success); }
 
 .field { margin-bottom: 1rem; }
 .field__label {
   display: block;
   font-size: 0.85rem;
-  color: #555;
+  color: var(--text-muted);
   margin-bottom: 0.25rem;
 }
 
@@ -293,7 +333,7 @@ label .lbl {
   opacity: 0.5;
 }
 .tag-quickpick.is-selected {
-  border-color: #1a1a1a;
+  border-color: var(--accent);
   font-weight: 600;
 }
 
@@ -301,14 +341,14 @@ label .lbl {
   background: transparent;
   border: none;
   padding: 0.2rem 0;
-  color: #1a1a1a;
+  color: var(--text);
   font-size: 0.9rem;
   text-decoration: underline;
   cursor: pointer;
 }
 
 .success {
-  color: #0a7a3b;
+  color: var(--success);
   margin: 0.5rem 0;
   font-size: 0.9rem;
 }
@@ -326,8 +366,8 @@ label .lbl {
   top: 100%;
   left: 0;
   right: 0;
-  background: #fff;
-  border: 1px solid #bbb;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
   border-top: none;
   border-radius: 0 0 4px 4px;
   max-height: 12rem;
@@ -339,5 +379,5 @@ label .lbl {
   cursor: pointer;
 }
 .combobox .options div:hover,
-.combobox .options div.highlight { background: #f0f0f0; }
+.combobox .options div.highlight { background: var(--hover); }
 .combobox .options .create { font-style: italic; }
