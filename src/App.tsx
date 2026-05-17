@@ -1,13 +1,20 @@
-import { useEffect, useState } from 'react';
-import { NavLink, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
-import { hasApiKey } from './auth';
-import { LanguageSwitcher, useT } from './i18n';
-import ApiKeyScreen from './screens/ApiKeyScreen';
-import NewExpenseScreen from './screens/NewExpenseScreen';
-import ExpensesScreen from './screens/ExpensesScreen';
-import BudgetScreen from './screens/BudgetScreen';
-import TagsScreen from './screens/TagsScreen';
-import TargetsScreen from './screens/TargetsScreen';
+import { useEffect, useState } from "react";
+import {
+  NavLink,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+import { hasApiKey } from "./auth";
+import { LanguageSwitcher, useT } from "./i18n";
+import ApiKeyScreen from "./screens/ApiKeyScreen";
+import NewExpenseScreen from "./screens/NewExpenseScreen";
+import ExpensesScreen from "./screens/ExpensesScreen";
+import BudgetScreen from "./screens/BudgetScreen";
+import TagsScreen from "./screens/TagsScreen";
+import TargetsScreen from "./screens/TargetsScreen";
 
 export default function App() {
   // `keyVersion` lets child screens trigger a re-render of the guard after the
@@ -22,30 +29,49 @@ export default function App() {
 
   // If the key disappears (e.g. 401 cleared it from api.ts), bounce to /key.
   useEffect(() => {
-    if (!authed && location.pathname !== '/key') navigate('/key', { replace: true });
+    if (!authed && location.pathname !== "/key")
+      navigate("/key", { replace: true });
   }, [authed, location.pathname, navigate]);
 
   return (
     <div className="app" key={keyVersion}>
       <nav>
-        <NavLink to="/new" className={({ isActive }) => (isActive ? 'active' : '')}>
-          {t('nav.new')}
+        <NavLink
+          to="/new"
+          className={({ isActive }) => (isActive ? "active" : "")}
+        >
+          {t("nav.new")}
         </NavLink>
-        <NavLink to="/expenses" className={({ isActive }) => (isActive ? 'active' : '')}>
-          {t('nav.expenses')}
+        <NavLink
+          to="/budget"
+          className={({ isActive }) => (isActive ? "active" : "")}
+        >
+          {t("nav.budget")}
         </NavLink>
-        <NavLink to="/budget" className={({ isActive }) => (isActive ? 'active' : '')}>
-          {t('nav.budget')}
+        <NavLink
+          to="/targets"
+          className={({ isActive }) => (isActive ? "active" : "")}
+        >
+          {t("nav.targets")}
         </NavLink>
-        <NavLink to="/tags" className={({ isActive }) => (isActive ? 'active' : '')}>
-          {t('nav.tags')}
+        <NavLink
+          to="/expenses"
+          className={({ isActive }) => (isActive ? "active" : "")}
+        >
+          {t("nav.expenses")}
         </NavLink>
-        <NavLink to="/targets" className={({ isActive }) => (isActive ? 'active' : '')}>
-          {t('nav.targets')}
+        <NavLink
+          to="/tags"
+          className={({ isActive }) => (isActive ? "active" : "")}
+        >
+          {t("nav.tags")}
         </NavLink>
         <LanguageSwitcher />
-        <NavLink to="/key" className={({ isActive }) => (isActive ? 'active' : '')}>
-          {t('nav.apiKey')}
+        <NavLink
+          to="/key"
+          className={({ isActive }) => (isActive ? "active" : "")}
+        >
+          {t("nav.apiKey")}
         </NavLink>
       </nav>
 
@@ -53,7 +79,9 @@ export default function App() {
         <Route path="/key" element={<ApiKeyScreen onSaved={bump} />} />
         <Route
           path="/new"
-          element={authed ? <NewExpenseScreen /> : <Navigate to="/key" replace />}
+          element={
+            authed ? <NewExpenseScreen /> : <Navigate to="/key" replace />
+          }
         />
         <Route
           path="/expenses"
@@ -73,7 +101,7 @@ export default function App() {
         />
         <Route
           path="*"
-          element={<Navigate to={authed ? '/new' : '/key'} replace />}
+          element={<Navigate to={authed ? "/new" : "/key"} replace />}
         />
       </Routes>
     </div>
