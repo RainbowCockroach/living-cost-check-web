@@ -574,6 +574,109 @@ label .lbl {
   font-size: 0.8rem;
 }
 
+/* ---- Targets screen ----
+   Same card-list shape as the Budget screen, swapped in for the original
+   horizontal table that overflowed on phones. The header line carries the
+   tag chip, the target kind (so the user can scan kinds at a glance), and
+   the row actions; metric cells stack into a 2-col grid below; the note,
+   when present, gets its own muted line. */
+.targets-controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+.targets-controls__refresh { margin-left: auto; }
+
+.target-form {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 0.85rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+.target-form .field:last-of-type { margin-bottom: 0.75rem; }
+.target-form__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.target-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.target-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.target-row:last-child { border-bottom: none; }
+
+.target-row__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.target-row__head .tag-chip {
+  font-size: 0.95rem;
+  padding: 0.2rem 0.65rem;
+}
+.target-row__kind {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.target-row__actions {
+  display: flex;
+  gap: 0.35rem;
+  margin-left: auto;
+}
+.target-row__actions button {
+  padding: 0.25rem 0.55rem;
+  font-size: 0.85rem;
+}
+
+.target-row__cells {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem 0.75rem;
+}
+
+.target-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+.target-cell__label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.target-cell__value {
+  font-variant-numeric: tabular-nums;
+  font-size: 1rem;
+}
+.target-cell__value--amount {
+  font-weight: 600;
+}
+.target-cell__value--neg {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.target-row__note {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  border-left: 2px solid var(--border);
+  padding-left: 0.6rem;
+}
+
 .combobox { position: relative; }
 .combobox .options {
   position: absolute;
