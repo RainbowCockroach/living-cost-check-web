@@ -485,23 +485,43 @@ label .lbl {
 }
 
 /* ---- Budget screen ----
-   Card list instead of a real table so it stacks cleanly on narrow viewports.
-   On desktop the four cells line up in a single row; under ~560px they wrap
-   into a 2x2 grid and the tag chip sits on its own line above. */
+   Compact two-line row per spending tag: chip + available on top, then
+   assigned input / spent / optional "assign needed" action inline below.
+   Designed to fit ~6 rows on a phone viewport without scrolling. */
 .budget-controls {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 0.35rem;
   align-items: center;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.6rem;
 }
-.budget-controls input[type="month"] { min-width: 0; }
+.budget-controls__month {
+  flex: 1 1 9rem;
+  min-width: 0;
+  padding: 0.3rem 0.4rem;
+}
+.budget-controls__nav {
+  padding: 0.3rem 0.55rem;
+  min-width: 2rem;
+}
 .budget-controls__refresh { margin-left: auto; }
 
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0.5rem;
+  line-height: 1;
+}
+.icon-spin { animation: icon-spin 0.9s linear infinite; }
+@keyframes icon-spin {
+  to { transform: rotate(360deg); }
+}
+
 .tbb {
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   font-weight: 600;
-  margin: 0.25rem 0 0.75rem;
+  margin: 0.25rem 0 0.6rem;
 }
 
 .budget-list {
@@ -512,8 +532,8 @@ label .lbl {
 .budget-row {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  padding: 0.75rem 0;
+  gap: 0.3rem;
+  padding: 0.55rem 0;
   border-bottom: 1px solid var(--border);
 }
 .budget-row:last-child { border-bottom: none; }
@@ -525,52 +545,49 @@ label .lbl {
   min-width: 0;
 }
 .budget-row__head .tag-chip {
-  font-size: 0.95rem;
-  padding: 0.2rem 0.65rem;
+  font-size: 0.9rem;
+  padding: 0.15rem 0.55rem;
 }
+.budget-row__avail {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+  font-size: 1rem;
+  font-weight: 600;
+}
+.budget-row__avail--neg { color: var(--danger); }
 
-.budget-row__cells {
-  display: grid;
-  /* On mobile, two columns. On wider screens, four. */
-  grid-template-columns: 1fr 1fr;
-  gap: 0.6rem 0.75rem;
-}
-@media (min-width: 560px) {
-  .budget-row__cells {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-.budget-cell {
+.budget-row__body {
   display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 0.75rem;
+}
+
+.budget-inline {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
   min-width: 0;
 }
-.budget-cell__label {
+.budget-inline__label {
   font-size: 0.75rem;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
-.budget-cell__value {
+.budget-inline__value {
   font-variant-numeric: tabular-nums;
-  font-size: 1rem;
+  font-size: 0.95rem;
 }
-.budget-cell__value--neg {
-  color: var(--danger);
-  font-weight: 600;
-}
-.budget-cell__input {
-  width: 100%;
+.budget-inline__input {
+  width: 6.5rem;
   text-align: right;
   font-variant-numeric: tabular-nums;
-  padding: 0.35rem 0.5rem;
+  padding: 0.25rem 0.4rem;
 }
-.budget-cell__action {
-  align-self: flex-start;
-  margin-top: 0.15rem;
-  padding: 0.2rem 0.5rem;
+.budget-row__assign {
+  margin-left: auto;
+  padding: 0.2rem 0.55rem;
   font-size: 0.8rem;
 }
 
