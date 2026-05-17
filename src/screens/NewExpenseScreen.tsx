@@ -24,6 +24,10 @@ export default function NewExpenseScreen() {
   // Note collapsed until the user opts in — keeps the main flow uncluttered
   // for the common case where the tag is enough context.
   const [noteOpen, setNoteOpen] = useState(false);
+  // Date defaults to today; the picker stays collapsed until the user wants
+  // to backdate (or forward-date) an entry.
+  const [occurredOn, setOccurredOn] = useState("");
+  const [dateOpen, setDateOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
@@ -100,6 +104,7 @@ export default function NewExpenseScreen() {
         kind,
         tagId: tag.id,
         note: note.trim() || undefined,
+        occurredAt: occurredOn || undefined,
       });
       const savedKey: MessageKey =
         kind === "outflow" ? "new.savedTo" : "new.savedIncomeTo";
@@ -110,6 +115,8 @@ export default function NewExpenseScreen() {
       setParts([]);
       setNote("");
       setNoteOpen(false);
+      setOccurredOn("");
+      setDateOpen(false);
       setTag(null);
     } catch (e) {
       setErr(e instanceof ApiError ? e.message : t("new.failed"));
@@ -244,6 +251,29 @@ export default function NewExpenseScreen() {
               onClick={() => setNoteOpen(true)}
             >
               {t("new.addNote")}
+            </button>
+          )}
+        </div>
+
+        <div className="field">
+          {dateOpen ? (
+            <>
+              <div className="field__label">{t("new.date")}</div>
+              <input
+                className="small-input"
+                type="date"
+                value={occurredOn}
+                onChange={(e) => setOccurredOn(e.target.value)}
+                autoFocus
+              />
+            </>
+          ) : (
+            <button
+              type="button"
+              className="note-toggle"
+              onClick={() => setDateOpen(true)}
+            >
+              {t("new.addDate")}
             </button>
           )}
         </div>
