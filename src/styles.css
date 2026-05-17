@@ -484,6 +484,96 @@ label .lbl {
   border-radius: 2px;
 }
 
+/* ---- Budget screen ----
+   Card list instead of a real table so it stacks cleanly on narrow viewports.
+   On desktop the four cells line up in a single row; under ~560px they wrap
+   into a 2x2 grid and the tag chip sits on its own line above. */
+.budget-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+.budget-controls input[type="month"] { min-width: 0; }
+.budget-controls__refresh { margin-left: auto; }
+
+.tbb {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 0.25rem 0 0.75rem;
+}
+
+.budget-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.budget-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.budget-row:last-child { border-bottom: none; }
+
+.budget-row__head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.budget-row__head .tag-chip {
+  font-size: 0.95rem;
+  padding: 0.2rem 0.65rem;
+}
+
+.budget-row__cells {
+  display: grid;
+  /* On mobile, two columns. On wider screens, four. */
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem 0.75rem;
+}
+@media (min-width: 560px) {
+  .budget-row__cells {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.budget-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+.budget-cell__label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.budget-cell__value {
+  font-variant-numeric: tabular-nums;
+  font-size: 1rem;
+}
+.budget-cell__value--neg {
+  color: var(--danger);
+  font-weight: 600;
+}
+.budget-cell__input {
+  width: 100%;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  padding: 0.35rem 0.5rem;
+}
+.budget-cell__action {
+  align-self: flex-start;
+  margin-top: 0.15rem;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.8rem;
+}
+
 .combobox { position: relative; }
 .combobox .options {
   position: absolute;

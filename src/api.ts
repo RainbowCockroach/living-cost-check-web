@@ -3,6 +3,7 @@ import { clearApiKey, getApiKey } from './auth';
 
 export type TxKind = 'outflow' | 'inflow';
 export type TagKind = 'spending' | 'income';
+export type TargetKind = 'by_date' | 'monthly_refill' | 'monthly_contribution';
 
 export type Tag = {
   id: number;
@@ -20,7 +21,16 @@ export type Transaction = {
   tagId: number;
   tag: Tag;
   createdById: number | null;
-  templateId: number | null;
+};
+
+export type BudgetTarget = {
+  id: number;
+  tagId: number;
+  kind: TargetKind;
+  amount: number;
+  dueMonth: string | null;
+  note: string | null;
+  tag: Tag;
 };
 
 export type BudgetCategory = {
@@ -28,21 +38,14 @@ export type BudgetCategory = {
   assigned: number;
   spent: number;
   available: number;
+  target: BudgetTarget | null;
+  needed: number;
 };
 
 export type BudgetView = {
   period: string;
   toBeBudgeted: number;
   categories: BudgetCategory[];
-};
-
-export type UpcomingOccurrence = {
-  templateId: number;
-  tag: Tag;
-  amount: number;
-  kind: TxKind;
-  note: string | null;
-  dueAt: string;
 };
 
 export class ApiError extends Error {
@@ -150,13 +153,13 @@ export const api = {
   deleteAssignment: (period: string, tagId: number) =>
     request<void>('DELETE', `/budget/${period}/assignments/${tagId}`),
 
-  upcomingTemplates: (params: { until?: string; limit?: number } = {}) => {
-    const q = new URLSearchParams();
-    if (params.until) q.set('until', params.until);
-    if (params.limit) q.set('limit', String(params.limit));
-    return request<{ until: string; items: UpcomingOccurrence[] }>(
-      'GET',
-      `/templates/upcoming?${q.toString()}`,
-    );
-  },
+  listTargets: () => request<BudgetTarget[]>('GET', '/targets'),
+  upsertTarget: (data: {
+    tagId: number;
+    kind: TargetKind;
+    amount: number;
+    dueMonth?: string | null;
+    note?: string | null;
+  }) => request<BudgetTarget>('PUT', '/targets', data),
+  deleteTarget: (id: number) => request<void>('DELETE', `/targets/${id}`),
 };

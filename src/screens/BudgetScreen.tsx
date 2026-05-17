@@ -19,6 +19,10 @@ function shiftPeriod(period: string, delta: number): string {
 // YNAB-style monthly grid. Each row is a spending tag; the user assigns money
 // inline. `available` carries over from prior months — no client-side math
 // here, the server returns the closed-form value.
+//
+// Layout is a card list (one per tag) rather than a table so the screen reads
+// well at phone widths. On wider viewports the four metric cells line up in a
+// single row; on mobile they wrap into a 2x2 grid.
 export default function BudgetScreen() {
   const [period, setPeriod] = useState(currentPeriod());
   const [data, setData] = useState<BudgetView | null>(null);
@@ -70,11 +74,27 @@ export default function BudgetScreen() {
     }
   }
 
+  // Top-up semantics: server's `needed` is the *additional* amount required
+  // this month, so the new total is current + needed. Matches YNAB's
+  // Auto-Assign (never decreases an existing assignment).
+  async function assignNeeded(tagId: number, needed: number, currentAssigned: number) {
+    setSavingTag(tagId);
+    setErr(null);
+    try {
+      await api.setAssignment(period, tagId, currentAssigned + needed);
+      await load();
+    } catch (e) {
+      setErr(e instanceof ApiError ? e.message : t('budget.saveFailed'));
+    } finally {
+      setSavingTag(null);
+    }
+  }
+
   return (
     <section>
       <h2>{t('budget.title')}</h2>
 
-      <div className="filter-row">
+      <div className="budget-controls">
         <button onClick={() => setPeriod((p) => shiftPeriod(p, -1))}>
           ← {t('budget.prev')}
         </button>
@@ -89,17 +109,17 @@ export default function BudgetScreen() {
         <button onClick={() => setPeriod(currentPeriod())}>
           {t('budget.thisMonth')}
         </button>
-        <span className="spacer" style={{ flex: 1 }} />
-        <button onClick={load} disabled={loading}>
+        <button
+          onClick={load}
+          disabled={loading}
+          className="budget-controls__refresh"
+        >
           {loading ? t('expenses.loading') : t('expenses.refresh')}
         </button>
       </div>
 
       {data && (
-        <div
-          className="tbb"
-          style={{ fontSize: '1.25rem', fontWeight: 600, margin: '0.5rem 0' }}
-        >
+        <div className="tbb">
           {t('budget.toBeBudgeted', {
             amount: data.toBeBudgeted.toLocaleString(locale),
           })}
@@ -113,45 +133,45 @@ export default function BudgetScreen() {
       )}
 
       {data && data.categories.length > 0 && (
-        <table className="budget-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th style={{ textAlign: 'left' }}>{t('budget.col.tag')}</th>
-              <th style={{ textAlign: 'right' }}>{t('budget.col.assigned')}</th>
-              <th style={{ textAlign: 'right' }}>{t('budget.col.spent')}</th>
-              <th style={{ textAlign: 'right' }}>{t('budget.col.available')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.categories.map((c) => {
-              const draft = drafts[c.tag.id];
-              const value = draft !== undefined ? draft : String(c.assigned);
-              const bg = c.tag.color ?? '#ddd';
-              const overspent = c.available < 0;
-              return (
-                <tr key={c.tag.id}>
-                  <td>
-                    <span
-                      className="tag-chip"
-                      style={{ background: bg, color: readableTextColor(bg) }}
-                    >
-                      {c.tag.name}
-                    </span>
-                  </td>
-                  <td style={{ textAlign: 'right' }}>
+        <ul className="budget-list">
+          {data.categories.map((c) => {
+            const draft = drafts[c.tag.id];
+            const value = draft !== undefined ? draft : String(c.assigned);
+            const bg = c.tag.color ?? '#ddd';
+            const overspent = c.available < 0;
+            const isSaving = savingTag === c.tag.id;
+            const showAssignBtn = c.needed > 0;
+            return (
+              <li key={c.tag.id} className="budget-row">
+                <div className="budget-row__head">
+                  <span
+                    className="tag-chip"
+                    style={{ background: bg, color: readableTextColor(bg) }}
+                  >
+                    {c.tag.name}
+                  </span>
+                </div>
+
+                <div className="budget-row__cells">
+                  <div className="budget-cell">
+                    <div className="budget-cell__label">
+                      {t('budget.col.assigned')}
+                    </div>
                     <input
                       type="number"
                       inputMode="numeric"
                       min={0}
                       step={1}
                       value={value}
-                      disabled={savingTag === c.tag.id}
+                      disabled={isSaving}
                       onChange={(e) =>
                         setDrafts((d) => ({ ...d, [c.tag.id]: e.target.value }))
                       }
                       onBlur={() => {
-                        if (drafts[c.tag.id] !== undefined &&
-                            Number(drafts[c.tag.id]) !== c.assigned) {
+                        if (
+                          drafts[c.tag.id] !== undefined &&
+                          Number(drafts[c.tag.id]) !== c.assigned
+                        ) {
                           commit(c.tag.id);
                         }
                       }}
@@ -160,26 +180,61 @@ export default function BudgetScreen() {
                           (e.target as HTMLInputElement).blur();
                         }
                       }}
-                      style={{ width: '8rem', textAlign: 'right' }}
+                      className="budget-cell__input"
                     />
-                  </td>
-                  <td style={{ textAlign: 'right' }}>
-                    {c.spent.toLocaleString(locale)}
-                  </td>
-                  <td
-                    style={{
-                      textAlign: 'right',
-                      color: overspent ? 'var(--danger)' : undefined,
-                      fontWeight: overspent ? 600 : undefined,
-                    }}
-                  >
-                    {c.available.toLocaleString(locale)}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                  </div>
+
+                  <div className="budget-cell">
+                    <div className="budget-cell__label">
+                      {t('budget.col.needed')}
+                    </div>
+                    <div className="budget-cell__value">
+                      {c.needed > 0 ? (
+                        c.needed.toLocaleString(locale)
+                      ) : (
+                        <span className="muted">—</span>
+                      )}
+                    </div>
+                    {showAssignBtn && (
+                      <button
+                        onClick={() => assignNeeded(c.tag.id, c.needed, c.assigned)}
+                        disabled={isSaving}
+                        className="budget-cell__action"
+                      >
+                        {t('budget.assignNeeded', {
+                          amount: c.needed.toLocaleString(locale),
+                        })}
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="budget-cell">
+                    <div className="budget-cell__label">
+                      {t('budget.col.spent')}
+                    </div>
+                    <div className="budget-cell__value">
+                      {c.spent.toLocaleString(locale)}
+                    </div>
+                  </div>
+
+                  <div className="budget-cell">
+                    <div className="budget-cell__label">
+                      {t('budget.col.available')}
+                    </div>
+                    <div
+                      className={
+                        'budget-cell__value' +
+                        (overspent ? ' budget-cell__value--neg' : '')
+                      }
+                    >
+                      {c.available.toLocaleString(locale)}
+                    </div>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
       )}
     </section>
   );
