@@ -124,6 +124,7 @@ export const api = {
     kind: TxKind;
     tagId: number;
     note?: string;
+    occurredAt?: string;
   }) => request<Transaction>('POST', '/transactions', data),
   deleteTransaction: (id: number) =>
     request<void>('DELETE', `/transactions/${id}`),
