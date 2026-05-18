@@ -28,6 +28,9 @@ const messages = {
     "apiKey.verifying": "Đang xác minh…",
     "apiKey.required": "Vui lòng nhập khoá API.",
     "apiKey.unreachable": "Không thể kết nối tới máy chủ.",
+    "apiKey.lastError": "Lần trước máy chủ trả về {status} cho {path} lúc {at}. Có thể khoá đã sai, hoặc kết nối tạm thời gặp lỗi.",
+    "apiKey.storedPresent": "Khoá đã lưu trên thiết bị này (độ dài {length}).",
+    "apiKey.storedMissing": "Hiện không có khoá nào lưu trên thiết bị này — localStorage có thể đã bị trình duyệt xoá.",
 
     "new.title": "Khoản chi mới",
     "new.titleIncome": "Thu nhập mới",
@@ -152,6 +155,9 @@ const messages = {
     "apiKey.verifying": "Verifying…",
     "apiKey.required": "API key is required.",
     "apiKey.unreachable": "Could not reach the server.",
+    "apiKey.lastError": "Last server response was {status} on {path} at {at}. The key may be wrong, or the connection failed transiently.",
+    "apiKey.storedPresent": "A key is stored on this device (length {length}).",
+    "apiKey.storedMissing": "No key is stored on this device — the browser may have cleared localStorage.",
 
     "new.title": "New expense",
     "new.titleIncome": "New income",

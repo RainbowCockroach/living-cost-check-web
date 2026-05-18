@@ -1,5 +1,5 @@
 import { API_BASE_URL } from './config';
-import { clearApiKey, getApiKey } from './auth';
+import { getApiKey, recordAuthError } from './auth';
 
 export type TxKind = 'outflow' | 'inflow';
 export type TagKind = 'spending' | 'income';
@@ -73,8 +73,12 @@ async function request<T>(
   });
 
   if (res.status === 401) {
-    clearApiKey();
-    if (location.hash !== '#/key') location.hash = '#/key';
+    // Don't clear the stored key — a transient 401 (Cloudflare Tunnel hiccup,
+    // captive portal, etc.) would otherwise log the user out and leave bookmarks
+    // landing on the key screen forever. The key is overwritten when the user
+    // re-enters one on /key, which is enough. We do leave a breadcrumb so the
+    // key screen can show why we ended up there if the user navigates over.
+    recordAuthError(401, path);
     throw new ApiError(401, 'Invalid API key');
   }
   if (!res.ok) {
