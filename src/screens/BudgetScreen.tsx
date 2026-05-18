@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { api, ApiError, type BudgetView } from "../api";
 import { readableTextColor } from "../colors";
+import RefreshButton from "../components/RefreshButton";
 import { useI18n } from "../i18n";
 
 function currentPeriod(): string {
@@ -14,26 +15,6 @@ function shiftPeriod(period: string, delta: number): string {
   const ny = Math.floor(total / 12);
   const nm = (total % 12) + 1;
   return `${ny}-${String(nm).padStart(2, "0")}`;
-}
-
-function RefreshIcon({ spinning }: { spinning: boolean }) {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={spinning ? "icon-spin" : undefined}
-      aria-hidden="true"
-    >
-      <path d="M21 12a9 9 0 1 1-3.51-7.12" />
-      <polyline points="21 3 21 9 15 9" />
-    </svg>
-  );
 }
 
 // YNAB-style monthly grid. Each row is a spending tag; the user assigns money
@@ -140,15 +121,11 @@ export default function BudgetScreen() {
         <button onClick={() => setPeriod(currentPeriod())}>
           {t("budget.thisMonth")}
         </button>
-        <button
+        <RefreshButton
           onClick={load}
-          disabled={loading}
-          className="budget-controls__refresh icon-btn"
-          aria-label={t("expenses.refresh")}
-          title={t("expenses.refresh")}
-        >
-          <RefreshIcon spinning={loading} />
-        </button>
+          loading={loading}
+          className="budget-controls__refresh"
+        />
       </div>
 
       {data && (

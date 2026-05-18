@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { api, ApiError, type Tag, type TagKind } from '../api';
 import { randomTagColor, readableTextColor } from '../colors';
+import RefreshButton from '../components/RefreshButton';
 import { useT } from '../i18n';
 
 // CRUD for both spending and income tags. Two tabs share the same list state;
@@ -154,9 +155,7 @@ export default function TagsScreen() {
           {t('tags.tab.income')}
         </button>
         <span className="spacer" />
-        <button onClick={load} disabled={loading}>
-          {loading ? t('expenses.loading') : t('expenses.refresh')}
-        </button>
+        <RefreshButton onClick={load} loading={loading} />
       </div>
 
       <div className="field tags__create">

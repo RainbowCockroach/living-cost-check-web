@@ -7,6 +7,7 @@ import {
   type TargetKind,
 } from "../api";
 import { readableTextColor } from "../colors";
+import RefreshButton from "../components/RefreshButton";
 import { useI18n } from "../i18n";
 
 type FormState = {
@@ -164,13 +165,11 @@ export default function TargetsScreen() {
         >
           {t("targets.add")}
         </button>
-        <button
+        <RefreshButton
           onClick={load}
-          disabled={loading}
+          loading={loading}
           className="targets-controls__refresh"
-        >
-          {loading ? t("expenses.loading") : t("expenses.refresh")}
-        </button>
+        />
       </div>
 
       {err && <div className="error">{err}</div>}
