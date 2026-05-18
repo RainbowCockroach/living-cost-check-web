@@ -1,39 +1,20 @@
-import { useCallback, useEffect, useState } from 'react';
-import { api, ApiError, type BudgetView } from '../api';
-import { readableTextColor } from '../colors';
-import { useI18n } from '../i18n';
+import { useCallback, useEffect, useState } from "react";
+import { api, ApiError, type BudgetView } from "../api";
+import { readableTextColor } from "../colors";
+import RefreshButton from "../components/RefreshButton";
+import { useI18n } from "../i18n";
 
 function currentPeriod(): string {
   const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 }
 
 function shiftPeriod(period: string, delta: number): string {
-  const [y, m] = period.split('-').map(Number);
+  const [y, m] = period.split("-").map(Number);
   const total = y * 12 + (m - 1) + delta;
   const ny = Math.floor(total / 12);
   const nm = (total % 12) + 1;
-  return `${ny}-${String(nm).padStart(2, '0')}`;
-}
-
-function RefreshIcon({ spinning }: { spinning: boolean }) {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={spinning ? 'icon-spin' : undefined}
-      aria-hidden="true"
-    >
-      <path d="M21 12a9 9 0 1 1-3.51-7.12" />
-      <polyline points="21 3 21 9 15 9" />
-    </svg>
-  );
+  return `${ny}-${String(nm).padStart(2, "0")}`;
 }
 
 // YNAB-style monthly grid. Each row is a spending tag; the user assigns money
@@ -62,7 +43,7 @@ export default function BudgetScreen() {
       setData(view);
       setDrafts({});
     } catch (e) {
-      setErr(e instanceof ApiError ? e.message : t('budget.loadFailed'));
+      setErr(e instanceof ApiError ? e.message : t("budget.loadFailed"));
     } finally {
       setLoading(false);
     }
@@ -77,7 +58,7 @@ export default function BudgetScreen() {
     if (raw === undefined) return;
     const n = Number(raw);
     if (!Number.isInteger(n) || n < 0) {
-      setErr(t('budget.invalidAmount'));
+      setErr(t("budget.invalidAmount"));
       return;
     }
     setSavingTag(tagId);
@@ -86,7 +67,7 @@ export default function BudgetScreen() {
       await api.setAssignment(period, tagId, n);
       await load();
     } catch (e) {
-      setErr(e instanceof ApiError ? e.message : t('budget.saveFailed'));
+      setErr(e instanceof ApiError ? e.message : t("budget.saveFailed"));
     } finally {
       setSavingTag(null);
     }
@@ -95,14 +76,18 @@ export default function BudgetScreen() {
   // Top-up semantics: server's `needed` is the *additional* amount required
   // this month, so the new total is current + needed. Matches YNAB's
   // Auto-Assign (never decreases an existing assignment).
-  async function assignNeeded(tagId: number, needed: number, currentAssigned: number) {
+  async function assignNeeded(
+    tagId: number,
+    needed: number,
+    currentAssigned: number,
+  ) {
     setSavingTag(tagId);
     setErr(null);
     try {
       await api.setAssignment(period, tagId, currentAssigned + needed);
       await load();
     } catch (e) {
-      setErr(e instanceof ApiError ? e.message : t('budget.saveFailed'));
+      setErr(e instanceof ApiError ? e.message : t("budget.saveFailed"));
     } finally {
       setSavingTag(null);
     }
@@ -110,14 +95,12 @@ export default function BudgetScreen() {
 
   return (
     <section>
-      <h2>{t('budget.title')}</h2>
-
       <div className="budget-controls">
         <button
           className="budget-controls__nav"
           onClick={() => setPeriod((p) => shiftPeriod(p, -1))}
-          aria-label={t('budget.prev')}
-          title={t('budget.prev')}
+          aria-label={t("budget.prev")}
+          title={t("budget.prev")}
         >
           ←
         </button>
@@ -130,28 +113,24 @@ export default function BudgetScreen() {
         <button
           className="budget-controls__nav"
           onClick={() => setPeriod((p) => shiftPeriod(p, 1))}
-          aria-label={t('budget.next')}
-          title={t('budget.next')}
+          aria-label={t("budget.next")}
+          title={t("budget.next")}
         >
           →
         </button>
         <button onClick={() => setPeriod(currentPeriod())}>
-          {t('budget.thisMonth')}
+          {t("budget.thisMonth")}
         </button>
-        <button
+        <RefreshButton
           onClick={load}
-          disabled={loading}
-          className="budget-controls__refresh icon-btn"
-          aria-label={t('expenses.refresh')}
-          title={t('expenses.refresh')}
-        >
-          <RefreshIcon spinning={loading} />
-        </button>
+          loading={loading}
+          className="budget-controls__refresh"
+        />
       </div>
 
       {data && (
         <div className="tbb">
-          {t('budget.toBeBudgeted', {
+          {t("budget.toBeBudgeted", {
             amount: data.toBeBudgeted.toLocaleString(locale),
           })}
         </div>
@@ -160,7 +139,7 @@ export default function BudgetScreen() {
       {err && <div className="error">{err}</div>}
 
       {data && data.categories.length === 0 && !loading && (
-        <div className="muted">{t('budget.empty')}</div>
+        <div className="muted">{t("budget.empty")}</div>
       )}
 
       {data && data.categories.length > 0 && (
@@ -168,7 +147,7 @@ export default function BudgetScreen() {
           {data.categories.map((c) => {
             const draft = drafts[c.tag.id];
             const value = draft !== undefined ? draft : String(c.assigned);
-            const bg = c.tag.color ?? '#ddd';
+            const bg = c.tag.color ?? "#ddd";
             const overspent = c.available < 0;
             const isSaving = savingTag === c.tag.id;
             const showAssignBtn = c.needed > 0;
@@ -183,10 +162,10 @@ export default function BudgetScreen() {
                   </span>
                   <span
                     className={
-                      'budget-row__avail' +
-                      (overspent ? ' budget-row__avail--neg' : '')
+                      "budget-row__avail" +
+                      (overspent ? " budget-row__avail--neg" : "")
                     }
-                    title={t('budget.col.available')}
+                    title={t("budget.col.available")}
                   >
                     {c.available.toLocaleString(locale)}
                   </span>
@@ -195,7 +174,7 @@ export default function BudgetScreen() {
                 <div className="budget-row__body">
                   <label className="budget-inline">
                     <span className="budget-inline__label">
-                      {t('budget.col.assigned')}
+                      {t("budget.col.assigned")}
                     </span>
                     <input
                       type="number"
@@ -216,7 +195,7 @@ export default function BudgetScreen() {
                         }
                       }}
                       onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
+                        if (e.key === "Enter") {
                           (e.target as HTMLInputElement).blur();
                         }
                       }}
@@ -226,7 +205,7 @@ export default function BudgetScreen() {
 
                   <span className="budget-inline budget-inline--ro">
                     <span className="budget-inline__label">
-                      {t('budget.col.spent')}
+                      {t("budget.col.spent")}
                     </span>
                     <span className="budget-inline__value">
                       {c.spent.toLocaleString(locale)}
@@ -235,11 +214,13 @@ export default function BudgetScreen() {
 
                   {showAssignBtn && (
                     <button
-                      onClick={() => assignNeeded(c.tag.id, c.needed, c.assigned)}
+                      onClick={() =>
+                        assignNeeded(c.tag.id, c.needed, c.assigned)
+                      }
                       disabled={isSaving}
                       className="budget-row__assign"
                     >
-                      {t('budget.assignNeeded', {
+                      {t("budget.assignNeeded", {
                         amount: c.needed.toLocaleString(locale),
                       })}
                     </button>

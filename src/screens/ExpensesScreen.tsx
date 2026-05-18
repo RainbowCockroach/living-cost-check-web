@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { api, ApiError, type Transaction, type TxKind } from "../api";
 import { readableTextColor } from "../colors";
 import KindSegmented from "../components/KindSegmented";
+import RefreshButton from "../components/RefreshButton";
 import { useI18n } from "../i18n";
 
 function ymd(d: Date): string {
@@ -106,9 +107,7 @@ export default function ExpensesScreen() {
       </div>
 
       <div className="expenses__actions">
-        <button onClick={load} disabled={loading}>
-          {loading ? t("expenses.loading") : t("expenses.refresh")}
-        </button>
+        <RefreshButton onClick={load} loading={loading} />
         <button
           className={editMode ? "primary" : ""}
           onClick={() => setEditMode((v) => !v)}

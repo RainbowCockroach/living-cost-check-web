@@ -51,7 +51,6 @@ export default function ApiKeyScreen({ onSaved }: { onSaved: () => void }) {
 
   return (
     <section>
-      <h2>{t('apiKey.title')}</h2>
       <p className="muted">{t('apiKey.help')}</p>
       {breadcrumb && (
         <p className="muted" role="status">
