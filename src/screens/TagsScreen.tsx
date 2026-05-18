@@ -134,8 +134,6 @@ export default function TagsScreen() {
 
   return (
     <section className="tags">
-      <h2>{t('tags.title')}</h2>
-
       <div className="tags__tabs" role="tablist">
         <button
           type="button"
