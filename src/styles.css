@@ -715,3 +715,77 @@ label .lbl {
 .combobox .options div:hover,
 .combobox .options div.highlight { background: var(--hover); }
 .combobox .options .create { font-style: italic; }
+
+/* ---- Reports screen ----
+   Vertical bar chart. Each row stacks a header (chip + amount/%) on top of a
+   full-width track — beats horizontal bars on a phone because the labels never
+   compete with the bar for width. */
+.report-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+.report-preset {
+  font-size: 0.85rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+.report-preset--active {
+  background: var(--accent);
+  color: var(--accent-text);
+  border-color: var(--accent);
+}
+.report-presets .icon-btn { margin-left: auto; }
+
+.reports__summary { margin-bottom: 0.75rem; }
+
+.report-bars {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+.report-bar { display: flex; flex-direction: column; gap: 0.3rem; }
+.report-bar__head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+.report-bar__name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  flex: 1;
+}
+.report-bar__name .tag-chip {
+  max-width: 60vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.report-bar__count { font-size: 0.8rem; }
+.report-bar__sum {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.report-bar__track {
+  height: 10px;
+  background: var(--surface-sunk);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.report-bar__fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 200ms ease-out;
+}

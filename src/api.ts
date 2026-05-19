@@ -133,6 +133,18 @@ export const api = {
   deleteTransaction: (id: number) =>
     request<void>('DELETE', `/transactions/${id}`),
 
+  reportByTag: (params: { from?: string; to?: string }) => {
+    const q = new URLSearchParams();
+    if (params.from) q.set('from', params.from);
+    if (params.to) q.set('to', params.to);
+    return request<{
+      from: string | null;
+      to: string | null;
+      total: number;
+      items: Array<{ tag: Tag; sum: number; count: number; percentage: number }>;
+    }>('GET', `/reports/by-tag?${q.toString()}`);
+  },
+
   // Sum + count for a date range, server-side. Outflow only — matches the
   // semantics of /reports/by-tag, which the budget UI also leans on.
   totalOutflows: (params: { from?: string; to?: string }) => {

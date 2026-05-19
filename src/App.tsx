@@ -12,6 +12,7 @@ import { LanguageSwitcher, useT } from "./i18n";
 import ApiKeyScreen from "./screens/ApiKeyScreen";
 import NewExpenseScreen from "./screens/NewExpenseScreen";
 import ExpensesScreen from "./screens/ExpensesScreen";
+import ReportsScreen from "./screens/ReportsScreen";
 import BudgetScreen from "./screens/BudgetScreen";
 import TagsScreen from "./screens/TagsScreen";
 import TargetsScreen from "./screens/TargetsScreen";
@@ -61,6 +62,12 @@ export default function App() {
           {t("nav.expenses")}
         </NavLink>
         <NavLink
+          to="/reports"
+          className={({ isActive }) => (isActive ? "active" : "")}
+        >
+          {t("nav.reports")}
+        </NavLink>
+        <NavLink
           to="/tags"
           className={({ isActive }) => (isActive ? "active" : "")}
         >
@@ -86,6 +93,10 @@ export default function App() {
         <Route
           path="/expenses"
           element={authed ? <ExpensesScreen /> : <Navigate to="/key" replace />}
+        />
+        <Route
+          path="/reports"
+          element={authed ? <ReportsScreen /> : <Navigate to="/key" replace />}
         />
         <Route
           path="/budget"

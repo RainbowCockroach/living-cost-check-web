@@ -12,6 +12,7 @@ const messages = {
   vi: {
     "nav.new": "Mới",
     "nav.expenses": "Thống kê",
+    "nav.reports": "Biểu đồ",
     "nav.budget": "Ngân sách",
     "nav.tags": "Loại",
     "nav.targets": "Kế hoạch",
@@ -70,6 +71,18 @@ const messages = {
     "expenses.empty": "Không có giao dịch nào trong khoảng này.",
     "expenses.loadFailed": "Không tải được dữ liệu.",
     "expenses.deleteFailed": "Xoá không thành công.",
+
+    "reports.title": "Chi tiêu theo loại",
+    "reports.total": "Tổng: {total} ₫",
+    "reports.summary": "{count} giao dịch · {from} – {to}",
+    "reports.empty": "Không có chi tiêu nào trong khoảng này.",
+    "reports.loadFailed": "Không tải được báo cáo.",
+    "reports.other": "Khác ({n})",
+    "reports.count": "{n} lần",
+    "reports.preset.thisMonth": "Tháng này",
+    "reports.preset.lastMonth": "Tháng trước",
+    "reports.preset.last3Months": "3 tháng",
+    "reports.preset.ytd": "Từ đầu năm",
 
     "budget.title": "Ngân sách tháng",
     "budget.prev": "Tháng trước",
@@ -139,6 +152,7 @@ const messages = {
   en: {
     "nav.new": "New",
     "nav.expenses": "Transactions",
+    "nav.reports": "Reports",
     "nav.budget": "Budget",
     "nav.tags": "Tags",
     "nav.targets": "Targets",
@@ -197,6 +211,18 @@ const messages = {
     "expenses.empty": "No transactions in this range.",
     "expenses.loadFailed": "Failed to load.",
     "expenses.deleteFailed": "Delete failed.",
+
+    "reports.title": "Spending by tag",
+    "reports.total": "Total: {total} ₫",
+    "reports.summary": "{count} transactions · {from} – {to}",
+    "reports.empty": "No spending in this range.",
+    "reports.loadFailed": "Failed to load report.",
+    "reports.other": "Other ({n})",
+    "reports.count": "{n}×",
+    "reports.preset.thisMonth": "This month",
+    "reports.preset.lastMonth": "Last month",
+    "reports.preset.last3Months": "Last 3 months",
+    "reports.preset.ytd": "Year to date",
 
     "budget.title": "Monthly budget",
     "budget.prev": "Prev",
