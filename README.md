@@ -30,6 +30,7 @@ Entered in the UI on first visit and saved to `localStorage` (`living-cost-check
 - `#/key` — paste / replace the API key (verifies against `GET /me`)
 - `#/new` — new expense (default after sign-in)
 - `#/expenses` — list with date-range filter (defaults to current month); toggle **Edit** to reveal per-row delete buttons
+- `#/reports` — spending-by-tag bar chart over a date range, with preset shortcuts (this month / last month / 3 months / YTD). Tail categories under 2% are folded into an "Other" row.
 
 ## Deploy
 
@@ -40,5 +41,4 @@ The workflow in `.github/workflows/deploy.yml` builds and publishes to GitHub Pa
 ## Out of scope (later phases)
 
 - Recurring templates UI (`/templates` endpoints)
-- Reports (`/reports/by-tag`)
 - Editing existing expenses (delete-only for now)
