@@ -71,6 +71,14 @@ export default function NewExpenseScreen() {
     setAmount("");
   }
 
+  // VND amounts are typically in thousands, so a "+000" shortcut lets the
+  // user type "25" then tap once to mean 25,000₫. Operates on the string so
+  // repeated taps stack (25 → 25000 → 25000000).
+  function appendThousand() {
+    if (!currentAmount()) return;
+    setAmount((cur) => `${cur}000`);
+  }
+
   function removePart(idx: number) {
     setParts((cur) => cur.filter((_, i) => i !== idx));
   }
@@ -156,6 +164,15 @@ export default function NewExpenseScreen() {
               placeholder="0"
               aria-label={t("new.amount")}
             />
+            <button
+              type="button"
+              className="add-zeros"
+              aria-label={t("new.addThousand")}
+              onClick={appendThousand}
+              disabled={!currentAmount()}
+            >
+              +000
+            </button>
             <button
               type="button"
               className="add-part"

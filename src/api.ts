@@ -130,6 +130,16 @@ export const api = {
     note?: string;
     occurredAt?: string;
   }) => request<Transaction>('POST', '/transactions', data),
+  updateTransaction: (
+    id: number,
+    patch: {
+      amount?: number;
+      kind?: TxKind;
+      tagId?: number;
+      note?: string | null;
+      occurredAt?: string;
+    },
+  ) => request<Transaction>('PATCH', `/transactions/${id}`, patch),
   deleteTransaction: (id: number) =>
     request<void>('DELETE', `/transactions/${id}`),
 

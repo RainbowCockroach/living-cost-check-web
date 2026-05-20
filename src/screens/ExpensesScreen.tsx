@@ -34,6 +34,9 @@ export default function ExpensesScreen() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editAmount, setEditAmount] = useState("");
+  const [saving, setSaving] = useState(false);
   const { t, locale } = useI18n();
 
   const load = useCallback(async () => {
@@ -67,6 +70,50 @@ export default function ExpensesScreen() {
     load();
   }, [load]);
 
+  // Leaving edit mode collapses any open editor.
+  useEffect(() => {
+    if (!editMode) {
+      setEditingId(null);
+      setEditAmount("");
+    }
+  }, [editMode]);
+
+  function startEdit(tx: Transaction) {
+    setEditingId(tx.id);
+    setEditAmount(String(tx.amount));
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setEditAmount("");
+  }
+
+  async function saveEdit(id: number) {
+    const next = Math.round(Number(editAmount));
+    const prev = items.find((x) => x.id === id);
+    if (!prev || !Number.isFinite(next) || next <= 0) {
+      cancelEdit();
+      return;
+    }
+    if (next === prev.amount) {
+      cancelEdit();
+      return;
+    }
+    setSaving(true);
+    setErr(null);
+    try {
+      const updated = await api.updateTransaction(id, { amount: next });
+      setItems((cur) => cur.map((x) => (x.id === id ? updated : x)));
+      const delta = updated.amount - prev.amount;
+      setRangeSum((s) => Math.max(0, s + delta));
+      cancelEdit();
+    } catch (e) {
+      setErr(e instanceof ApiError ? e.message : t("expenses.updateFailed"));
+    } finally {
+      setSaving(false);
+    }
+  }
+
   async function onDelete(id: number) {
     try {
       await api.deleteTransaction(id);
@@ -74,6 +121,7 @@ export default function ExpensesScreen() {
       setItems((cur) => cur.filter((x) => x.id !== id));
       setTotal((n) => Math.max(0, n - 1));
       if (removed) setRangeSum((s) => Math.max(0, s - removed.amount));
+      if (editingId === id) cancelEdit();
     } catch (e) {
       setErr(e instanceof ApiError ? e.message : t("expenses.deleteFailed"));
     }
@@ -135,32 +183,78 @@ export default function ExpensesScreen() {
         </div>
       )}
 
-      <ul className="expense-list">
+      <ul className={`expense-list${editMode ? " expense-list--editing" : ""}`}>
         {items.map((x) => {
           const bg = x.tag.color ?? "#ddd";
           const sign = kind === "inflow" ? "+" : "";
+          const isEditing = editingId === x.id;
           return (
-            <li key={x.id}>
-              <span
-                className={`amount amount--${kind === "inflow" ? "in" : "out"}`}
+            <li key={x.id} className={isEditing ? "is-editing" : undefined}>
+              <button
+                type="button"
+                className="expense-row"
+                disabled={!editMode}
+                onClick={() => {
+                  if (!editMode) return;
+                  if (isEditing) cancelEdit();
+                  else startEdit(x);
+                }}
               >
-                {sign}
-                {x.amount.toLocaleString(locale)} ₫
-              </span>
-              <span
-                className="tag-chip"
-                style={{ background: bg, color: readableTextColor(bg) }}
-              >
-                {x.tag.name}
-              </span>
-              {x.note && <span className="note">{x.note}</span>}
-              <span className="when">
-                {new Date(x.occurredAt).toLocaleDateString(locale)}
-              </span>
-              {editMode && (
-                <button className="danger" onClick={() => onDelete(x.id)}>
-                  {t("expenses.delete")}
-                </button>
+                <span
+                  className={`amount amount--${kind === "inflow" ? "in" : "out"}`}
+                >
+                  {sign}
+                  {x.amount.toLocaleString(locale)} ₫
+                </span>
+                <span
+                  className="tag-chip"
+                  style={{ background: bg, color: readableTextColor(bg) }}
+                >
+                  {x.tag.name}
+                </span>
+                <span className="when">
+                  {new Date(x.occurredAt).toLocaleDateString(locale)}
+                </span>
+                {x.note && <span className="note">{x.note}</span>}
+              </button>
+
+              {isEditing && (
+                <div className="expense-edit">
+                  <label className="field expense-edit__amount">
+                    <div className="field__label">
+                      {t("expenses.amount")}
+                    </div>
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min={1}
+                      step={1}
+                      value={editAmount}
+                      onChange={(e) => setEditAmount(e.target.value)}
+                      autoFocus
+                    />
+                  </label>
+                  <div className="expense-edit__actions">
+                    <button
+                      className="danger"
+                      onClick={() => onDelete(x.id)}
+                      disabled={saving}
+                    >
+                      {t("expenses.delete")}
+                    </button>
+                    <span className="spacer" />
+                    <button onClick={cancelEdit} disabled={saving}>
+                      {t("expenses.cancel")}
+                    </button>
+                    <button
+                      className="primary"
+                      onClick={() => saveEdit(x.id)}
+                      disabled={saving}
+                    >
+                      {t("expenses.save")}
+                    </button>
+                  </div>
+                </div>
               )}
             </li>
           );

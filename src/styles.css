@@ -173,6 +173,15 @@ label .lbl {
   line-height: 1;
   padding: 0 0.9rem;
   font-weight: 600;
+  min-width: 2.75rem;
+}
+.add-zeros {
+  font-size: 1.05rem;
+  line-height: 1;
+  padding: 0 0.75rem;
+  font-weight: 600;
+  min-width: 3rem;
+  letter-spacing: 0.02em;
 }
 
 .parts-row {
@@ -216,14 +225,54 @@ label .lbl {
 .expense-list { list-style: none; padding: 0; margin: 0; }
 .expense-list li {
   display: flex;
-  gap: 0.75rem;
-  align-items: center;
+  flex-direction: column;
   padding: 0.6rem 0;
   border-bottom: 1px solid var(--border);
 }
-.expense-list .amount { font-weight: 600; min-width: 6rem; }
-.expense-list .note { color: var(--text-muted); flex: 1; font-size: 0.9rem; }
-.expense-list .when { color: var(--text-faint); font-size: 0.8rem; }
+.expense-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  column-gap: 0.6rem;
+  row-gap: 0.2rem;
+  align-items: center;
+  width: 100%;
+  background: none;
+  border: 0;
+  padding: 0;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: default;
+}
+.expense-list--editing .expense-row { cursor: pointer; }
+.expense-row:disabled { cursor: default; opacity: 1; }
+.expense-list .amount { font-weight: 600; min-width: 0; }
+.expense-list .tag-chip { justify-self: start; min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.expense-list .when { color: var(--text-faint); font-size: 0.8rem; justify-self: end; }
+.expense-list .note {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  grid-column: 1 / -1;
+  word-break: break-word;
+}
+
+.expense-edit {
+  margin-top: 0.6rem;
+  padding: 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.expense-edit__amount input { width: 100%; }
+.expense-edit__actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.expense-edit__actions .spacer { flex: 1; }
 
 .tag-chip {
   display: inline-block;
