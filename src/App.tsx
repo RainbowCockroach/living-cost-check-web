@@ -44,6 +44,12 @@ export default function App() {
           {t("nav.new")}
         </NavLink>
         <NavLink
+          to="/expenses"
+          className={({ isActive }) => (isActive ? "active" : "")}
+        >
+          {t("nav.expenses")}
+        </NavLink>
+        <NavLink
           to="/budget"
           className={({ isActive }) => (isActive ? "active" : "")}
         >
@@ -54,12 +60,6 @@ export default function App() {
           className={({ isActive }) => (isActive ? "active" : "")}
         >
           {t("nav.targets")}
-        </NavLink>
-        <NavLink
-          to="/expenses"
-          className={({ isActive }) => (isActive ? "active" : "")}
-        >
-          {t("nav.expenses")}
         </NavLink>
         <NavLink
           to="/reports"

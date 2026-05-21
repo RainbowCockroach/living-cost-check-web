@@ -111,12 +111,15 @@ export const api = {
     from?: string;
     to?: string;
     kind?: TxKind;
+    tagIds?: number[];
     limit?: number;
   }) => {
     const q = new URLSearchParams();
     if (params.from) q.set('from', params.from);
     if (params.to) q.set('to', params.to);
     if (params.kind) q.set('kind', params.kind);
+    if (params.tagIds && params.tagIds.length)
+      q.set('tagIds', params.tagIds.join(','));
     if (params.limit) q.set('limit', String(params.limit));
     return request<{ total: number; items: Transaction[] }>(
       'GET',

@@ -76,6 +76,9 @@ const messages = {
     "expenses.cancel": "Huỷ",
     "expenses.amount": "Số tiền",
     "expenses.updateFailed": "Cập nhật không thành công.",
+    "expenses.filterByTag": "Lọc theo nhãn",
+    "expenses.clearFilter": "Xoá lọc",
+    "expenses.dateRange": "Khoảng thời gian",
 
     "reports.title": "Chi tiêu theo loại",
     "reports.total": "Tổng: {total} ₫",
@@ -221,6 +224,9 @@ const messages = {
     "expenses.cancel": "Cancel",
     "expenses.amount": "Amount",
     "expenses.updateFailed": "Update failed.",
+    "expenses.filterByTag": "Filter by tag",
+    "expenses.clearFilter": "Clear",
+    "expenses.dateRange": "Date range",
 
     "reports.title": "Spending by tag",
     "reports.total": "Total: {total} ₫",
